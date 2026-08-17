@@ -134,13 +134,14 @@
     </div>
   </div>
 
-  <!-- TABS DE NAVEGACIÓN -->
+  <!-- PESTAÑAS DE NAVEGACIÓN -->
   <div class="tab-bar">
     <div class="tab-btn active" id="tabWork" onclick="switchTab('work')">🏋️ Entrenar</div>
     <div class="tab-btn" id="tabHist" onclick="switchTab('hist')">📅 Historial</div>
     <div class="tab-btn" id="tabBack" onclick="switchTab('back')">⚙️ Datos</div>
   </div>
 
+  <!-- VISTA 1: ENTRENAR -->
   <div id="viewWork">
     <div class="header">
       <h1>Protocolo de Entrenamiento</h1>
@@ -156,6 +157,7 @@
     </div>
   </div>
 
+  <!-- VISTA 2: HISTORIAL -->
   <div id="viewHist" style="display: none;">
     <div class="header">
       <h1>Auditoría de Historial</h1>
@@ -164,192 +166,120 @@
     <div id="historyList"></div>
   </div>
 
-  <!-- VISTA DE BACKUP Y RECUPERACIÓN -->
+  <!-- VISTA 3: DATOS / IMPORTAR -->
   <div id="viewBack" style="display: none;">
     <div class="header">
       <h1>Gestión de Datos</h1>
-      <div class="subtitle">Recupera aquí tu historial de Google Sheets</div>
+      <div class="subtitle">Recupera tu historial de Google Sheets</div>
     </div>
     <div class="card">
-      <label>Pegar JSON del Historial</label>
-      <textarea id="importText" rows="6" placeholder="[ { date: '2026-08-17'... } ]"></textarea>
+      <label>Pegar texto del Historial</label>
+      <textarea id="importText" rows="6" placeholder='[{"date":"2026-08... }]'></textarea>
       <button class="primary-btn" onclick="importFromText()">📥 Restaurar Datos</button>
     </div>
   </div>
 
   <script>
-    // CACHE KILLER: Fuerza al navegador a olvidar versiones antiguas congeladas
+    // CACHE KILLER: Fuerza actualización en iOS
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
       });
     }
 
-    // CATÁLOGO MASIVO COMPLETO
+    // CATÁLOGO TRADUCIDO AL ESPAÑOL ESTÁNDAR (Estilo FitnessOnline)
     const EXERCISE_CATALOG = [
-      { id: "W01", name: "Movilidad Articular Dinámica", group: "Calentamiento", pattern: "Movilidad", equipment: "Peso Corporal", restSec: 0, isBodyweight: true, isIso: false, guide: "Rotaciones escápulas, cadera, tobillos, muñecas." },
+      { id: "W01", name: "Rotaciones Articulares Dinámicas", group: "Calentamiento", pattern: "Movilidad", equipment: "Peso Corporal", restSec: 0, isBodyweight: true, isIso: false, guide: "Rotaciones escápulas, cadera, tobillos, muñecas." },
       { id: "W02", name: "Cardio Suave de Activación", group: "Calentamiento", pattern: "Cardio", equipment: "Cinta / Elíptica", restSec: 0, isBodyweight: true, isIso: false, guide: "5 min a ritmo suave para elevar temperatura." },
       { id: "W03", name: "Series de Aproximación", group: "Calentamiento", pattern: "Aproximación", equipment: "Libre", restSec: 60, isBodyweight: false, isIso: false, guide: "2 series 40-50% del primer peso pesado." },
-      { id: "W04", name: "Dislocaciones Hombro con Pica", group: "Calentamiento", pattern: "Movilidad", equipment: "Pica", restSec: 0, isBodyweight: true, isIso: false, guide: "Movilidad escapular." },
-      { id: "P01", name: "Press Banca Plano con Barra", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Retracción escapular, barra al esternón." },
-      { id: "P02", name: "Press Plano con Mancuernas", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Descenso controlado a línea del pecho." },
-      { id: "P03", name: "Press Pecho Máquina Convergente", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Empuje guiado; junta manos al frente." },
-      { id: "P04", name: "Press Pecho Multipower", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Multipower", restSec: 90, isBodyweight: false, isIso: false, guide: "Máxima estabilidad. Baja al pezón." },
-      { id: "P05", name: "Press Pecho Suelo (Floor Press)", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Barra/Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Limita ROM para proteger hombro." },
-      { id: "P06", name: "Press Pecho en Polea Baja Sentado", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Tensión constante en empuje." },
-      { id: "P07", name: "Press Inclinado con Mancuernas", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Banco a 30°. Empuja sobre hombros." },
-      { id: "P08", name: "Press Inclinado con Barra", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Descenso hacia clavícula." },
-      { id: "P09", name: "Press Inclinado en Máquina", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Aislamiento superior seguro." },
-      { id: "P10", name: "Press Inclinado Multipower", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Multipower", restSec: 90, isBodyweight: false, isIso: false, guide: "Fallo seguro en pecho alto." },
-      { id: "P11", name: "Svend Press Inclinado", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Disco", restSec: 60, isBodyweight: false, isIso: false, guide: "Aprieta disco contra sí mismo." },
-      { id: "P12", name: "Fondos en Paralelas (Pecho)", group: "Pecho", pattern: "Empuje Declinado", equipment: "Peso Corporal", restSec: 120, isBodyweight: true, isIso: false, guide: "Torso inclinado adelante 30°." },
-      { id: "P13", name: "Fondos en Máquina Asistida", group: "Pecho", pattern: "Empuje Declinado", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Usa lastre negativo para pecho." },
-      { id: "P14", name: "Press Declinado con Barra", group: "Pecho", pattern: "Empuje Declinado", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Banco declinado. Porción inferior." },
-      { id: "P15", name: "Press Declinado con Mancuernas", group: "Pecho", pattern: "Empuje Declinado", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Menor estrés hombro." },
-      { id: "P16", name: "Press Declinado en Máquina", group: "Pecho", pattern: "Empuje Declinado", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Empuja hacia abajo y al frente." },
-      { id: "P17", name: "Flexiones Declinadas", group: "Pecho", pattern: "Empuje Declinado", equipment: "Peso Corporal", restSec: 90, isBodyweight: true, isIso: false, guide: "Foco en pectoral superior." },
-      { id: "P18", name: "Flexiones Clásicas", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Peso Corporal", restSec: 90, isBodyweight: true, isIso: false, guide: "Bloqueo core, pecho al suelo." },
-      { id: "P19", name: "Aperturas en Pec Deck / Contractor", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Codos semiflexionados, aprieta 1s." },
-      { id: "P20", name: "Cruce Poleas desde Abajo", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Hacia arriba para haz clavicular." },
-      { id: "P21", name: "Cruce Poleas desde Arriba", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Hacia abajo cruzando al frente." },
-      { id: "P22", name: "Cruce Poleas Altura Media", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Enfoque en pectoral medio." },
-      { id: "P23", name: "Aperturas con Mancuernas Plano", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Mancuernas", restSec: 75, isBodyweight: false, isIso: false, guide: "No dobles codos en exceso." },
-      { id: "P24", name: "Aperturas Mancuernas Inclinado", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Mancuernas", restSec: 75, isBodyweight: false, isIso: false, guide: "Tensión en estiramiento superior." },
-      { id: "P25", name: "Aperturas Polea Banco Inclinado", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Tensión constante en todo el ROM." },
-      { id: "E01", name: "Dominadas Pronas (Abiertas)", group: "Espalda", pattern: "Tracción Vertical", equipment: "Peso Corporal", restSec: 120, isBodyweight: true, isIso: false, guide: "Pecho a barra. Fibras superiores." },
+      
+      { id: "P01", name: "Press de Banca con Barra", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Retracción escapular, barra al esternón." },
+      { id: "P02", name: "Press de Pecho con Mancuernas", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Descenso controlado a línea del pecho." },
+      { id: "P03", name: "Press de Pecho en Máquina", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Empuje guiado; junta manos al frente." },
+      { id: "P04", name: "Press de Pecho en Multipower", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Multipower", restSec: 90, isBodyweight: false, isIso: false, guide: "Máxima estabilidad. Baja al pezón." },
+      { id: "P05", name: "Press de Pecho Inclinado Mancuernas", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Banco a 30°. Empuja sobre hombros." },
+      { id: "P06", name: "Press de Pecho Inclinado Barra", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Descenso hacia clavícula." },
+      { id: "P07", name: "Press Inclinado en Máquina", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Aislamiento superior seguro." },
+      { id: "P08", name: "Fondos en Paralelas", group: "Pecho", pattern: "Empuje Declinado", equipment: "Peso Corporal", restSec: 120, isBodyweight: true, isIso: false, guide: "Torso inclinado adelante 30°." },
+      { id: "P09", name: "Press Declinado con Barra", group: "Pecho", pattern: "Empuje Declinado", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Banco declinado. Porción inferior." },
+      { id: "P10", name: "Flexiones de Brazo", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Peso Corporal", restSec: 90, isBodyweight: true, isIso: false, guide: "Bloqueo core, pecho al suelo." },
+      { id: "P11", name: "Aperturas en Máquina (Pec Deck)", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Codos semiflexionados, aprieta 1s." },
+      { id: "P12", name: "Cruces en Polea Baja", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Hacia arriba para haz clavicular." },
+      { id: "P13", name: "Cruces en Polea Alta", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Hacia abajo cruzando al frente." },
+      { id: "P14", name: "Aperturas Planas con Mancuernas", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Mancuernas", restSec: 75, isBodyweight: false, isIso: false, guide: "No dobles codos en exceso." },
+      { id: "P15", name: "Aperturas Inclinadas Mancuernas", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Mancuernas", restSec: 75, isBodyweight: false, isIso: false, guide: "Tensión en estiramiento superior." },
+
+      { id: "E01", name: "Dominadas Abiertas", group: "Espalda", pattern: "Tracción Vertical", equipment: "Peso Corporal", restSec: 120, isBodyweight: true, isIso: false, guide: "Pecho a barra. Fibras superiores." },
       { id: "E02", name: "Dominadas Neutras", group: "Espalda", pattern: "Tracción Vertical", equipment: "Peso Corporal", restSec: 120, isBodyweight: true, isIso: false, guide: "Agarre paralelo. Cuidado articular." },
-      { id: "E03", name: "Dominadas Supinas (Chin-ups)", group: "Espalda", pattern: "Tracción Vertical", equipment: "Peso Corporal", restSec: 120, isBodyweight: true, isIso: false, guide: "Palmas a ti. Foco bíceps/dorsal." },
-      { id: "E04", name: "Dominadas Máquina Asistida", group: "Espalda", pattern: "Tracción Vertical", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Saca repeticiones estrictas." },
-      { id: "E05", name: "Jalón Pecho Agarre Abierto", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Codos al suelo, barra a clavícula." },
-      { id: "E06", name: "Jalón Pecho Agarre Neutro/V", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Estiramiento profundo dorsal ancho." },
-      { id: "E07", name: "Jalón Pecho Agarre Supino", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Gran implicación del bíceps." },
-      { id: "E08", name: "Jalón Unilateral Polea Alta", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Pega codo a cadera, enfocando 1 lado." },
-      { id: "E09", name: "Jalón Pecho Máquina Palanca", group: "Espalda", pattern: "Tracción Vertical", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Convergente, gran congestión." },
-      { id: "E10", name: "Jalón Tras Nuca (Avanzado)", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Solo con gran movilidad hombro." },
-      { id: "E11", name: "Remo con Barra 45° (Prono)", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Densidad espalda alta." },
-      { id: "E12", name: "Remo con Barra 45° (Supino)", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Codos pegados, foco dorsal inferior." },
-      { id: "E13", name: "Remo Pendlay (Desde Suelo)", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Espalda paralela al suelo. Fuerza pura." },
-      { id: "E14", name: "Remo Unilateral Mancuerna", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Apoyo en banco, tracción a cadera." },
-      { id: "E15", name: "Remo Gironda (Polea Baja, V)", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Saca pecho, estira escápulas." },
-      { id: "E16", name: "Remo Gironda Agarre Ancho", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Codos abiertos. Foco deltoides posterior/romboides." },
-      { id: "E17", name: "Remo Máquina Pecho Apoyado", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Aísla espalda sin fatiga lumbar." },
-      { id: "E18", name: "Remo Barra T (Pecho Apoyado)", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Carga pesada lumbar protegida." },
-      { id: "E19", name: "Remo Barra T (Libre)", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Posición clásica de remo T." },
-      { id: "E20", name: "Remo Mancuernas Banco Inclinado", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Tracciona ambas a la vez apoyado." },
-      { id: "E21", name: "Remo Meadows", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Barra", restSec: 90, isBodyweight: false, isIso: false, guide: "Remo unilateral con extremo barra." },
-      { id: "E22", name: "Pull-over Polea Alta Cuerda", group: "Espalda", pattern: "Extensión Hombro", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Brazos casi rectos hacia muslos." },
-      { id: "E23", name: "Pull-over Polea Alta Barra", group: "Espalda", pattern: "Extensión Hombro", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Agarre prono, foco dorsal ancho." },
-      { id: "E24", name: "Pull-over Mancuerna Banco", group: "Espalda", pattern: "Extensión Hombro", equipment: "Mancuerna", restSec: 90, isBodyweight: false, isIso: false, guide: "Tumbado perpendicular. Gran estiramiento." },
-      { id: "E25", name: "Pull-over en Máquina", group: "Espalda", pattern: "Extensión Hombro", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Tensión constante en dorsal." },
-      { id: "Q01", name: "Sentadilla Trasera Barra Libre", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Barra", restSec: 180, isBodyweight: false, isIso: false, guide: "Rompe paralelo, columna neutra." },
-      { id: "Q02", name: "Sentadilla Frontal Barra", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Torso vertical, foco cuádriceps máximo." },
-      { id: "Q03", name: "Sentadilla Multipower", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Multipower", restSec: 120, isBodyweight: false, isIso: false, guide: "Pies ligeramente adelantados." },
-      { id: "Q04", name: "Prensa de Piernas 45°", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Prensa", restSec: 120, isBodyweight: false, isIso: false, guide: "Baja profundo sin curvar lumbar." },
-      { id: "Q05", name: "Prensa Horizontal", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Prensa", restSec: 90, isBodyweight: false, isIso: false, guide: "Menor carga espinal." },
-      { id: "Q06", name: "Prensa Unilateral", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Prensa", restSec: 90, isBodyweight: false, isIso: false, guide: "Aislamiento pierna a pierna." },
-      { id: "Q07", name: "Sentadilla Hack Máquina", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Máquina", restSec: 120, isBodyweight: false, isIso: false, guide: "Apoyo dorsal total. Cuádriceps pesado." },
-      { id: "Q08", name: "Sentadilla Búlgara Mancuernas", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Baja vertical sobre pierna adelantada." },
-      { id: "Q09", name: "Sentadilla Búlgara Multipower", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Multipower", restSec: 90, isBodyweight: false, isIso: false, guide: "Elimina inestabilidad." },
-      { id: "Q10", name: "Sentadilla Goblet Mancuerna", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuerna", restSec: 90, isBodyweight: false, isIso: false, guide: "Peso al pecho, torso recto." },
-      { id: "Q11", name: "Zancadas / Lunges Estáticas", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Sube y baja en el mismo sitio." },
-      { id: "Q12", name: "Zancadas Caminando", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Pasos amplios y controlados." },
-      { id: "Q13", name: "Zancadas Atrás (Reverse Lunge)", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Menos estrés rotuliano." },
-      { id: "Q14", name: "Pistol Squat (1 Pierna)", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Peso Corporal", restSec: 120, isBodyweight: true, isIso: false, guide: "Máxima fuerza unilateral y equilibrio." },
-      { id: "Q15", name: "Extensiones Cuádriceps", group: "Cuádriceps", pattern: "Extensión Rodilla", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Aguanta 1s arriba." },
-      { id: "Q16", name: "Extensiones Cuádriceps Unilateral", group: "Cuádriceps", pattern: "Extensión Rodilla", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Corrige asimetrías." },
-      { id: "Q17", name: "Sissy Squat Libre", group: "Cuádriceps", pattern: "Extensión Rodilla", equipment: "Peso Corporal", restSec: 90, isBodyweight: true, isIso: false, guide: "Estiramiento extremo cuádriceps." },
+      { id: "E03", name: "Dominadas en Máquina Asistida", group: "Espalda", pattern: "Tracción Vertical", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Saca repeticiones estrictas." },
+      { id: "E04", name: "Jalón al Pecho Abierto", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Codos al suelo, barra a clavícula." },
+      { id: "E05", name: "Jalón al Pecho Estrecho", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Estiramiento profundo dorsal ancho." },
+      { id: "E06", name: "Jalón a una Mano en Polea", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Pega codo a cadera, enfocando 1 lado." },
+      { id: "E07", name: "Remo con Barra", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Densidad espalda alta." },
+      { id: "E08", name: "Remo a una Mano con Mancuerna", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Apoyo en banco, tracción a cadera." },
+      { id: "E09", name: "Remo Sentado en Polea Baja", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Saca pecho, estira escápulas." },
+      { id: "E10", name: "Remo en Máquina (Apoyo en Pecho)", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Aísla espalda sin fatiga lumbar." },
+      { id: "E11", name: "Remo en Barra T", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Carga pesada lumbar protegida." },
+      { id: "E12", name: "Pullover en Polea Alta", group: "Espalda", pattern: "Extensión Hombro", equipment: "Polea", restSec: 75, isBodyweight: false, isIso: false, guide: "Brazos casi rectos hacia muslos." },
+      { id: "E13", name: "Pullover con Mancuerna", group: "Espalda", pattern: "Extensión Hombro", equipment: "Mancuerna", restSec: 90, isBodyweight: false, isIso: false, guide: "Tumbado transversal al banco." },
+
+      { id: "Q01", name: "Sentadilla Libre con Barra", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Barra", restSec: 180, isBodyweight: false, isIso: false, guide: "Rompe paralelo, columna neutra." },
+      { id: "Q02", name: "Prensa de Piernas Inclinada", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Prensa", restSec: 120, isBodyweight: false, isIso: false, guide: "Baja profundo sin curvar lumbar." },
+      { id: "Q03", name: "Sentadilla en Máquina Hack", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Máquina Hack", restSec: 120, isBodyweight: false, isIso: false, guide: "Apoyo dorsal total. Cuádriceps pesado." },
+      { id: "Q04", name: "Sentadilla Búlgara", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Baja vertical sobre pierna adelantada." },
+      { id: "Q05", name: "Sentadilla Frontal", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Torso vertical, foco cuádriceps máximo." },
+      { id: "Q06", name: "Zancadas Estáticas", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Sube y baja en el mismo sitio." },
+      { id: "Q07", name: "Zancadas Hacia Atrás", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Menor carga en la rodilla." },
+      { id: "Q08", name: "Extensiones de Piernas", group: "Cuádriceps", pattern: "Extensión Rodilla", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Aguanta 1s arriba." },
+
       { id: "H01", name: "Peso Muerto Rumano Barra", group: "Isquios", pattern: "Dominante Cadera", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Cadera atrás, estiramiento femoral." },
       { id: "H02", name: "Peso Muerto Rumano Mancuernas", group: "Isquios", pattern: "Dominante Cadera", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Mancuernas pegadas a piernas." },
-      { id: "H03", name: "Peso Muerto Piernas Rígidas", group: "Isquios", pattern: "Dominante Cadera", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Menor flexión de rodilla que RDL." },
-      { id: "H04", name: "Peso Muerto Convencional", group: "Isquios", pattern: "Dominante Cadera", equipment: "Barra", restSec: 180, isBodyweight: false, isIso: false, guide: "Salida suelo. Multiarticular global." },
-      { id: "H05", name: "Peso Muerto Sumo", group: "Isquios", pattern: "Dominante Cadera", equipment: "Barra", restSec: 180, isBodyweight: false, isIso: false, guide: "Pies muy abiertos, torso vertical." },
-      { id: "H06", name: "Peso Muerto B-Stance", group: "Isquios", pattern: "Dominante Cadera", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Pie atrasado apoya solo puntera." },
-      { id: "H07", name: "Buenos Días Barra", group: "Isquios", pattern: "Dominante Cadera", equipment: "Barra", restSec: 90, isBodyweight: false, isIso: false, guide: "Barra en trapecios, bisagra profunda." },
-      { id: "H08", name: "Curl Femoral Tumbado", group: "Isquios", pattern: "Flexión Rodilla", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Explosivo subir, 3s bajar." },
-      { id: "H09", name: "Curl Femoral Sentado", group: "Isquios", pattern: "Flexión Rodilla", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Cadera 90°. Máxima tensión isquios." },
-      { id: "H10", name: "Curl Femoral Pie Unilateral", group: "Isquios", pattern: "Flexión Rodilla", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Aislamiento pierna a pierna." },
-      { id: "H11", name: "Curl Femoral Deslizante / Fitball", group: "Isquios", pattern: "Flexión Rodilla", equipment: "Fitball", restSec: 60, isBodyweight: true, isIso: false, guide: "Cadera elevada, flexiona rodillas." },
-      { id: "H12", name: "Glute Ham Raise (Nórdico)", group: "Isquios", pattern: "Flexión Rodilla", equipment: "Peso Corporal", restSec: 90, isBodyweight: true, isIso: false, guide: "Excéntrico brutal isquiosural." },
-      { id: "GL01", name: "Hip Thrust Barra", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Empuja talones, bloquea 1s arriba." },
-      { id: "GL02", name: "Hip Thrust Máquina", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Tensión directa segura." },
-      { id: "GL03", name: "Hip Thrust Multipower", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Multipower", restSec: 90, isBodyweight: false, isIso: false, guide: "Elimina estabilización lateral." },
-      { id: "GL04", name: "Hip Thrust Unilateral", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Mancuerna", restSec: 90, isBodyweight: false, isIso: false, guide: "Una pierna en aire." },
-      { id: "GL05", name: "Puente Glúteo Suelo", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Barra", restSec: 90, isBodyweight: false, isIso: false, guide: "Espalda en suelo. Menor ROM." },
-      { id: "GL06", name: "Patada Glúteo Polea Baja", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Pierna recta atrás, aprieta glúteo." },
-      { id: "GL07", name: "Patada Glúteo Máquina", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Empuje guiado." },
-      { id: "GL08", name: "Abducción Máquina Sentado", group: "Glúteo", pattern: "Abducción Cadera", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Abre pausando en contracción." },
-      { id: "GL09", name: "Abducción Polea Baja Pie", group: "Glúteo", pattern: "Abducción Cadera", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Glúteo medio y estabilizadores." },
-      { id: "S01", name: "Press Militar Barra Pie", group: "Hombro", pattern: "Empuje Vertical", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Bloquea glúteos y core." },
-      { id: "S02", name: "Press Militar Mancuernas Sentado", group: "Hombro", pattern: "Empuje Vertical", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Banco 80°, empuja vertical." },
-      { id: "S03", name: "Press Hombros Máquina", group: "Hombro", pattern: "Empuje Vertical", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Trabajo pesado estable." },
-      { id: "S04", name: "Press Arnold Mancuernas", group: "Hombro", pattern: "Empuje Vertical", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Rotación activa deltoides anterior." },
-      { id: "S05", name: "Press Militar Multipower", group: "Hombro", pattern: "Empuje Vertical", equipment: "Multipower", restSec: 90, isBodyweight: false, isIso: false, guide: "Bajada por delante del rostro." },
-      { id: "S06", name: "Press Tras Nuca Barra", group: "Hombro", pattern: "Empuje Vertical", equipment: "Barra", restSec: 90, isBodyweight: false, isIso: false, guide: "Solo con gran movilidad hombro." },
-      { id: "S07", name: "Push Press Barra", group: "Hombro", pattern: "Empuje Vertical", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Ligero impulso piernas." },
-      { id: "S08", name: "Elevaciones Laterales Mancuernas", group: "Hombro", pattern: "Abducción Hombro", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Codos alineados plano escapular." },
-      { id: "S09", name: "Elevaciones Laterales Polea Unil", group: "Hombro", pattern: "Abducción Hombro", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Tensión constante todo el ROM." },
-      { id: "S10", name: "Elevaciones Laterales Cruzadas Polea", group: "Hombro", pattern: "Abducción Hombro", equipment: "Polea Doble", restSec: 60, isBodyweight: false, isIso: false, guide: "Cruza cables por delante." },
-      { id: "S11", name: "Elevaciones Laterales Máquina", group: "Hombro", pattern: "Abducción Hombro", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Aislamiento guiado deltoides lateral." },
-      { id: "S12", name: "Pájaros Pec Deck Invertida", group: "Hombro", pattern: "Deltoides Posterior", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Abre brazos enfocando posterior." },
-      { id: "S13", name: "Pájaros Mancuernas Inclinado", group: "Hombro", pattern: "Deltoides Posterior", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Pecho paralelo al suelo." },
-      { id: "S14", name: "Pájaros Polea Cruzada", group: "Hombro", pattern: "Deltoides Posterior", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Tira cruzado sin escápulas." },
-      { id: "S15", name: "Face Pull Polea Cuerda", group: "Hombro", pattern: "Deltoides Posterior", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Tira a frente, rotación externa." },
-      { id: "S16", name: "Elevaciones Frontales Mancuernas", group: "Hombro", pattern: "Flexión Hombro", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Sube frontal a altura visual." },
-      { id: "S17", name: "Elevaciones Frontales Polea", group: "Hombro", pattern: "Flexión Hombro", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Foco deltoides anterior." },
-      { id: "S18", name: "Remo al Mentón Barra/Polea", group: "Hombro", pattern: "Tracción Vertical", equipment: "Barra/Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Codos altos, foco lateral/trapecio." },
-      { id: "S19", name: "Encogimientos Trapecio", group: "Hombro", pattern: "Elevación Escapular", equipment: "Libre", restSec: 60, isBodyweight: false, isIso: false, guide: "Sube hombros a orejas." },
-      { id: "B01", name: "Curl Barra Z Pie", group: "Bíceps", pattern: "Flexión Codo", equipment: "Barra Z", restSec: 75, isBodyweight: false, isIso: false, guide: "Codos pegados, sin balanceo lumbar." },
-      { id: "B02", name: "Curl Barra Recta", group: "Bíceps", pattern: "Flexión Codo", equipment: "Barra", restSec: 75, isBodyweight: false, isIso: false, guide: "Máxima supinación." },
-      { id: "B03", name: "Curl Alterno Mancuernas Pie", group: "Bíceps", pattern: "Flexión Codo", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Supina muñeca al subir." },
-      { id: "B04", name: "Curl Simultáneo Mancuernas", group: "Bíceps", pattern: "Flexión Codo", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Ambas a la vez." },
-      { id: "B05", name: "Curl Banco Scott Barra", group: "Bíceps", pattern: "Flexión Codo", equipment: "Banco Scott", restSec: 75, isBodyweight: false, isIso: false, guide: "Aislamiento estricto sin impulso." },
-      { id: "B06", name: "Curl Máquina Scott", group: "Bíceps", pattern: "Flexión Codo", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Tensión constante." },
-      { id: "B07", name: "Curl Polea Baja Barra", group: "Bíceps", pattern: "Flexión Codo", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Pico de contracción." },
-      { id: "B08", name: "Curl Martillo Mancuernas", group: "Bíceps", pattern: "Flexión Neutra", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Agarre neutro (braquial)." },
-      { id: "B09", name: "Curl Martillo Polea Cuerda", group: "Bíceps", pattern: "Flexión Neutra", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Tensión constante braquiorradial." },
-      { id: "B10", name: "Curl Inclinado Mancuernas", group: "Bíceps", pattern: "Flexión Codo", equipment: "Mancuernas", restSec: 75, isBodyweight: false, isIso: false, guide: "Brazos cuelgan atrás. Estiramiento." },
-      { id: "B11", name: "Curl Araña (Spider Curl)", group: "Bíceps", pattern: "Flexión Codo", equipment: "Barra", restSec: 75, isBodyweight: false, isIso: false, guide: "Pecho en banco, brazos rectos abajo." },
-      { id: "B12", name: "Curl Concentrado Mancuerna", group: "Bíceps", pattern: "Flexión Codo", equipment: "Mancuerna", restSec: 60, isBodyweight: false, isIso: false, guide: "Codo en muslo interior." },
-      { id: "B13", name: "Curl Bayesián (Polea)", group: "Bíceps", pattern: "Flexión Codo", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Estiramiento extremo cabeza larga." },
-      { id: "B14", name: "Curl Inverso (Prono) Barra", group: "Bíceps", pattern: "Flexión Prona", equipment: "Barra", restSec: 60, isBodyweight: false, isIso: false, guide: "Enfoque antebrazo." },
-      { id: "T01", name: "Extensión Tríceps Polea Cuerda", group: "Tríceps", pattern: "Extensión Codo", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Abre extremos abajo." },
-      { id: "T02", name: "Extensión Tríceps Polea Barra", group: "Tríceps", pattern: "Extensión Codo", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Mueve más carga que cuerda." },
-      { id: "T03", name: "Extensión Polea Unilateral Supina", group: "Tríceps", pattern: "Extensión Codo", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Palma arriba, un brazo." },
-      { id: "T04", name: "Press Francés Barra Z Plano", group: "Tríceps", pattern: "Extensión Codo", equipment: "Barra Z", restSec: 75, isBodyweight: false, isIso: false, guide: "A la frente o coronilla." },
-      { id: "T05", name: "Press Francés Inclinado", group: "Tríceps", pattern: "Extensión Codo", equipment: "Mancuernas", restSec: 75, isBodyweight: false, isIso: false, guide: "Mayor rango cabeza larga." },
-      { id: "T06", name: "Press Cerrado Tríceps Barra", group: "Tríceps", pattern: "Extensión Codo", equipment: "Barra", restSec: 90, isBodyweight: false, isIso: false, guide: "Agarre anchura hombros." },
-      { id: "T07", name: "Extensión Tríceps Cabeza Polea", group: "Tríceps", pattern: "Extensión Vertical", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Estiramiento porción larga." },
-      { id: "T08", name: "Extensión Cabeza Mancuerna", group: "Tríceps", pattern: "Extensión Vertical", equipment: "Mancuerna", restSec: 60, isBodyweight: false, isIso: false, guide: "Sentado, pesada tras nuca." },
-      { id: "T09", name: "Copa Tríceps 1 Mano", group: "Tríceps", pattern: "Extensión Vertical", equipment: "Mancuerna", restSec: 60, isBodyweight: false, isIso: false, guide: "Unilateral tras nuca." },
-      { id: "T10", name: "Fondos Tríceps Máquina", group: "Tríceps", pattern: "Extensión Codo", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Empuja abajo foco tríceps." },
-      { id: "T11", name: "Fondos Tríceps Paralelas", group: "Tríceps", pattern: "Extensión Codo", equipment: "Peso Corporal", restSec: 90, isBodyweight: true, isIso: false, guide: "Torso vertical." },
-      { id: "T12", name: "Fondos Bancos (Dips)", group: "Tríceps", pattern: "Extensión Codo", equipment: "Peso Corporal", restSec: 75, isBodyweight: true, isIso: false, guide: "Manos atrás, baja paralelo." },
-      { id: "T13", name: "Patada Tríceps Mancuerna", group: "Tríceps", pattern: "Extensión Codo", equipment: "Mancuerna", restSec: 60, isBodyweight: false, isIso: false, guide: "Torso 90°, extiende brazo atrás." },
-      { id: "CA01", name: "Elevación Talones Pie Máquina", group: "Gemelos", pattern: "Flexión Plantar", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Rodillas bloqueadas." },
-      { id: "CA02", name: "Elevación Talones Multipower", group: "Gemelos", pattern: "Flexión Plantar", equipment: "Multipower", restSec: 60, isBodyweight: false, isIso: false, guide: "Sube a un step." },
-      { id: "CA03", name: "Elevación Talones Prensa", group: "Gemelos", pattern: "Flexión Plantar", equipment: "Prensa", restSec: 60, isBodyweight: false, isIso: false, guide: "Empuja plataforma con puntas." },
-      { id: "CA04", name: "Elevación Talones Sentado", group: "Gemelos", pattern: "Flexión Plantar", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Aísla sóleo (rodilla flexionada)." },
-      { id: "CA05", name: "Elevación Talones Libre 1 Pierna", group: "Gemelos", pattern: "Flexión Plantar", equipment: "Mancuerna", restSec: 60, isBodyweight: false, isIso: false, guide: "Equilibrio y fuerza unilateral." },
-      { id: "CA06", name: "Elevación Talones Costurera", group: "Gemelos", pattern: "Flexión Plantar", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Variante clásica de sentado." },
+      { id: "H03", name: "Flexión de Piernas Tumbado", group: "Isquios", pattern: "Flexión Rodilla", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Curl femoral explosivo, bajada lenta." },
+      { id: "H04", name: "Flexión de Piernas Sentado", group: "Isquios", pattern: "Flexión Rodilla", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Cadera 90°. Máxima tensión isquios." },
+      { id: "H05", name: "Curl Femoral Nórdico", group: "Isquios", pattern: "Flexión Rodilla", equipment: "Peso Corporal", restSec: 90, isBodyweight: true, isIso: false, guide: "De rodillas, cae frenando con isquios." },
+      
+      { id: "GL01", name: "Elevación de Pelvis con Barra", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Empuja talones, bloquea 1s arriba." },
+      { id: "GL02", name: "Elevación de Pelvis en Máquina", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Tensión directa segura." },
+      { id: "GL03", name: "Elevación de Pelvis a una Pierna", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Mancuerna", restSec: 90, isBodyweight: false, isIso: false, guide: "Una pierna en aire." },
+      { id: "GL04", name: "Patada de Glúteo en Polea", group: "Glúteo", pattern: "Extensión Cadera", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Pierna recta atrás, aprieta glúteo." },
+      { id: "GL05", name: "Abductores en Máquina", group: "Glúteo", pattern: "Abducción Cadera", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Apertura controlada pausando en contracción." },
+
+      { id: "S01", name: "Press Militar con Barra", group: "Hombro", pattern: "Empuje Vertical", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Bloquea glúteos y core." },
+      { id: "S02", name: "Press de Hombros Mancuernas", group: "Hombro", pattern: "Empuje Vertical", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Banco 80°, empuja vertical." },
+      { id: "S03", name: "Press de Hombros en Máquina", group: "Hombro", pattern: "Empuje Vertical", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Para trabajar pesado con máxima estabilidad." },
+      { id: "S04", name: "Press Arnold", group: "Hombro", pattern: "Empuje Vertical", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Rotación activa deltoides anterior." },
+      { id: "S05", name: "Elevaciones Laterales Mancuernas", group: "Hombro", pattern: "Abducción Hombro", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Codos alineados plano escapular." },
+      { id: "S06", name: "Elevaciones Laterales en Polea", group: "Hombro", pattern: "Abducción Hombro", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Tensión constante durante todo el recorrido." },
+      { id: "S07", name: "Aperturas Inversas en Máquina", group: "Hombro", pattern: "Deltoides Posterior", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Abre brazos enfocando posterior." },
+      { id: "S08", name: "Tirón a la Cara (Face Pull)", group: "Hombro", pattern: "Deltoides Posterior", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Tira hacia la frente con rotación externa." },
+      { id: "S09", name: "Elevaciones Frontales", group: "Hombro", pattern: "Flexión Hombro", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Sube frontal a altura visual." },
+
+      { id: "B01", name: "Flexión de Bíceps con Barra", group: "Bíceps", pattern: "Flexión Codo", equipment: "Barra Z", restSec: 75, isBodyweight: false, isIso: false, guide: "Codos pegados, sin balanceo lumbar." },
+      { id: "B02", name: "Flexión Alterna Mancuernas", group: "Bíceps", pattern: "Flexión Codo", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Supina muñeca al subir." },
+      { id: "B03", name: "Flexión en Banco Scott", group: "Bíceps", pattern: "Flexión Codo", equipment: "Banco Scott", restSec: 75, isBodyweight: false, isIso: false, guide: "Aislamiento estricto sin impulso." },
+      { id: "B04", name: "Flexión Martillo Mancuernas", group: "Bíceps", pattern: "Flexión Neutra", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Agarre neutro (braquial)." },
+      { id: "B05", name: "Flexión de Bíceps en Polea Baja", group: "Bíceps", pattern: "Flexión Codo", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Tensión continua en máxima contracción." },
+
+      { id: "T01", name: "Extensión de Tríceps Polea Cuerda", group: "Tríceps", pattern: "Extensión Codo", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Abre extremos abajo." },
+      { id: "T02", name: "Extensión de Tríceps Polea Barra", group: "Tríceps", pattern: "Extensión Codo", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Mueve más carga que cuerda." },
+      { id: "T03", name: "Press Francés", group: "Tríceps", pattern: "Extensión Codo", equipment: "Barra Z", restSec: 75, isBodyweight: false, isIso: false, guide: "A la frente o coronilla." },
+      { id: "T04", name: "Extensión Tríceps Sobre Cabeza", group: "Tríceps", pattern: "Extensión Vertical", equipment: "Polea / Mancuerna", restSec: 60, isBodyweight: false, isIso: false, guide: "Estiramiento porción larga." },
+      { id: "T05", name: "Fondos de Tríceps en Máquina", group: "Tríceps", pattern: "Extensión Codo", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Empuja abajo foco tríceps." },
+
+      { id: "CA01", name: "Elevación Talones Pie", group: "Gemelos", pattern: "Flexión Plantar", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Sube al máximo y estira lento." },
+      { id: "CA02", name: "Elevación Talones Sentado", group: "Gemelos", pattern: "Flexión Plantar", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Aísla sóleo (rodilla flexionada)." },
+
       { id: "C01", name: "Plancha Abdominal Frontal", group: "Core", pattern: "Isométrico", equipment: "Peso Corporal", restSec: 60, isBodyweight: true, isIso: true, guide: "Bloqueo firme." },
       { id: "C02", name: "Plancha Lateral", group: "Core", pattern: "Isométrico", equipment: "Peso Corporal", restSec: 60, isBodyweight: true, isIso: true, guide: "Alineación cadera oblicuos." },
-      { id: "C03", name: "Plancha Lastrada", group: "Core", pattern: "Isométrico", equipment: "Disco", restSec: 60, isBodyweight: false, isIso: true, guide: "Disco en la espalda alta." },
-      { id: "C04", name: "Hollow Body Hold", group: "Core", pattern: "Isométrico", equipment: "Peso Corporal", restSec: 60, isBodyweight: true, isIso: true, guide: "Lumbar pegada, extremidades extendidas." },
-      { id: "C05", name: "Crunch Abdominal Suelo", group: "Core", pattern: "Flexión Tronco", equipment: "Peso Corporal", restSec: 60, isBodyweight: true, isIso: false, guide: "Despega escápulas." },
-      { id: "C06", name: "Crunch Polea Alta Rodillas", group: "Core", pattern: "Flexión Tronco", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Aproxima costillas a pelvis." },
-      { id: "C07", name: "Crunch Máquina Abdominal", group: "Core", pattern: "Flexión Tronco", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Resistencia guiada." },
-      { id: "C08", name: "Elevación Piernas Colgado", group: "Core", pattern: "Flexión Cadera", equipment: "Barra", restSec: 60, isBodyweight: true, isIso: false, guide: "Eleva sin balanceo." },
-      { id: "C09", name: "Elevación Piernas Silla Romana", group: "Core", pattern: "Flexión Cadera", equipment: "Silla", restSec: 60, isBodyweight: true, isIso: false, guide: "Apoyo en antebrazos." },
-      { id: "C10", name: "Elevación Piernas Suelo", group: "Core", pattern: "Flexión Cadera", equipment: "Banco", restSec: 60, isBodyweight: true, isIso: false, guide: "Manos bajo glúteos." },
-      { id: "C11", name: "Rueda Abdominal (Ab Wheel)", group: "Core", pattern: "Antiextensión", equipment: "Rueda", restSec: 75, isBodyweight: true, isIso: false, guide: "Extiende manteniendo pelvis estable." },
-      { id: "C12", name: "V-Ups (Abdominales V)", group: "Core", pattern: "Flexión Tronco", equipment: "Peso Corporal", restSec: 60, isBodyweight: true, isIso: false, guide: "Toca pies con manos arriba." },
-      { id: "C13", name: "Russian Twists Lastrados", group: "Core", pattern: "Rotación", equipment: "Disco/Kettle", restSec: 60, isBodyweight: false, isIso: false, guide: "Gira torso, pies en aire." },
-      { id: "C14", name: "Woodchopper (Leñador) Polea", group: "Core", pattern: "Rotación", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Corte diagonal." },
-      { id: "C15", name: "Press Pallof Isométrico", group: "Core", pattern: "Antirrotación", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: true, guide: "Resiste rotación al extender brazos." },
+      { id: "C03", name: "Isometría Abdominal (Barca)", group: "Core", pattern: "Isométrico", equipment: "Peso Corporal", restSec: 60, isBodyweight: true, isIso: true, guide: "Lumbar pegada, extremidades extendidas." },
+      { id: "C04", name: "Encogimientos Abdominales", group: "Core", pattern: "Flexión Tronco", equipment: "Peso Corporal", restSec: 60, isBodyweight: true, isIso: false, guide: "Despega escápulas del suelo." },
+      { id: "C05", name: "Encogimientos en Polea Alta", group: "Core", pattern: "Flexión Tronco", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Aproxima costillas a pelvis." },
+      { id: "C06", name: "Elevación Piernas Colgado", group: "Core", pattern: "Flexión Cadera", equipment: "Barra", restSec: 60, isBodyweight: true, isIso: false, guide: "Eleva sin balanceo." },
+      { id: "C07", name: "Rueda Abdominal", group: "Core", pattern: "Antiextensión", equipment: "Rueda", restSec: 75, isBodyweight: true, isIso: false, guide: "Extiende manteniendo pelvis estable." },
+      { id: "C08", name: "Leñador en Polea", group: "Core", pattern: "Rotación", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Corte diagonal resistido." },
+
       { id: "CR01", name: "Caminata Inclinada (Zona 2)", group: "Cardio", pattern: "Aeróbico", equipment: "Cinta", restSec: 0, isBodyweight: true, isIso: false, guide: "Inc 8-12%, vel 4.5-5 km/h, 15-20 min." },
-      { id: "CR02", name: "Bicicleta Estática (Moderada)", group: "Cardio", pattern: "Aeróbico", equipment: "Bici", restSec: 0, isBodyweight: true, isIso: false, guide: "15 min ritmo constante." },
-      { id: "CR03", name: "Elíptica Suave", group: "Cardio", pattern: "Aeróbico", equipment: "Elíptica", restSec: 0, isBodyweight: true, isIso: false, guide: "Bajo impacto articular." },
-      { id: "CR04", name: "Remo Indoor / Ergómetro", group: "Cardio", pattern: "Aeróbico", equipment: "Remo", restSec: 0, isBodyweight: true, isIso: false, guide: "10-15 min sostenido." }
+      { id: "CR02", name: "Bicicleta Estática", group: "Cardio", pattern: "Aeróbico", equipment: "Bici", restSec: 0, isBodyweight: true, isIso: false, guide: "15 min ritmo constante." }
     ];
 
     let state = {
@@ -566,7 +496,6 @@
       renderChecklist();
     }
 
-    // EXCLUSIÓN ESTRICTA DE EJERCICIOS QUE YA ESTÁN HOY
     function substituteExercise(idx) {
       const current = state.currentRoutine[idx];
       const existingNames = state.currentRoutine.map(e => e.name);
@@ -584,7 +513,6 @@
       if (alts[chosenIdx]) {
         state.currentRoutine[idx] = { ...alts[chosenIdx], phase: current.phase, target: alts[chosenIdx].isIso ? "45s-60s" : "8-12 reps", weight: alts[chosenIdx].isBodyweight ? 0 : 20, note: "Sustitución en vivo" };
         
-        // RESET DE INPUTS PARA EL NUEVO EJERCICIO (No arrastrar datos del ejercicio anterior)
         state.completedSets[idx] = [
           { weight: alts[chosenIdx].isBodyweight ? 0 : 20, reps: alts[chosenIdx].isIso ? 45 : 10, rir: 2, locked: false },
           { weight: alts[chosenIdx].isBodyweight ? 0 : 20, reps: alts[chosenIdx].isIso ? 45 : 10, rir: 2, locked: false },
@@ -689,7 +617,6 @@
       document.getElementById('extraExModal').classList.add('active');
     }
 
-    // SELECTOR DE EXTRAS: EXCLUYE EJERCICIOS YA PLANIFICADOS EN LA SESIÓN
     function populateExtraExercises() {
       const g = document.getElementById('extraGroupSelect').value;
       const sel = document.getElementById('extraExSelect');
@@ -796,7 +723,6 @@
       }
     }
 
-    // FUNCIONES DE IMPORTACIÓN DE GOOGLE SHEETS
     function importFromText() {
       const text = document.getElementById('importText').value;
       if (!text) return;
