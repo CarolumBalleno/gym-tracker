@@ -29,7 +29,7 @@
     }
 
     .tab-bar { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .tab-btn { flex: 1; padding: 10px 4px; background: var(--card); color: var(--text-sec); border: 1px solid var(--border); border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; cursor: pointer; text-align: center; }
+    .tab-btn { flex: 1; padding: 10px 4px; background: var(--card); color: var(--text-sec); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; text-align: center; }
     .tab-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 
     .header { margin-bottom: 16px; }
@@ -41,7 +41,7 @@
     .primary-btn { width: 100%; background: var(--accent); color: var(--bg); border: none; padding: 14px; border-radius: 6px; font-size: 13px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-bottom: 10px; }
     .primary-btn:active { opacity: 0.8; }
     
-    .session-toggle-btn { width: 100%; background: var(--text); color: var(--bg); border: none; padding: 14px; border-radius: 6px; font-size: 13px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-bottom: 14px; display: none; }
+    .session-toggle-btn { width: 100%; background: var(--text); color: var(--bg); border: none; padding: 14px; border-radius: 6px; font-size: 13px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-bottom: 10px; display: none; }
     .btn-extra { background: var(--bg); color: var(--text-sec); border: 1px dashed var(--border); font-size: 11px; padding: 12px; margin-top: 10px; width: 100%; cursor: pointer; font-weight: 700; text-transform: uppercase; }
     
     label { font-size: 10px; color: var(--text-sec); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
@@ -115,7 +115,23 @@
     </div>
   </div>
 
-  <!-- MODAL AÑADIR EJERCICIO -->
+  <!-- MODAL CAMBIAR ENFOQUE DEL DÍA (AUTORREGULACIÓN) -->
+  <div class="modal-overlay" id="overrideModal">
+    <div class="modal-content">
+      <div class="rest-title" style="margin-bottom: 20px; color: var(--accent);">Forzar Enfoque del Día</div>
+      <p style="font-size:11px; color:var(--text-sec); margin-bottom:15px; text-align:center;">Usa esta opción si tienes agujetas o fatiga externa y prefieres ignorar al algoritmo hoy.</p>
+      <label>Grupo Principal</label>
+      <select id="overrideG1"></select>
+      <label>Grupo Secundario (Opcional)</label>
+      <select id="overrideG2"></select>
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button class="primary-btn" style="margin: 0;" onclick="applyOverride()">Generar Rutina</button>
+        <button class="primary-btn" style="margin: 0; background: var(--bg); color: var(--text); border: 1px solid var(--border);" onclick="document.getElementById('overrideModal').classList.remove('active')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AÑADIR EJERCICIO EXTRA -->
   <div class="modal-overlay" id="extraExModal">
     <div class="modal-content">
       <div class="rest-title" style="margin-bottom: 20px;">Añadir Bloque Extra</div>
@@ -150,6 +166,7 @@
 
     <button class="primary-btn" id="btnGen" onclick="generateWorkoutPlan()">Crear Plan Óptimo del Día</button>
     <button class="session-toggle-btn" id="btnSession" onclick="toggleSession()">▶️ INICIAR ENTRENAMIENTO</button>
+    <button class="btn-extra" id="btnOverride" onclick="openOverrideModal()" style="display:none; margin-bottom: 14px;">🔄 Cambiar Enfoque (Agotamiento Externo)</button>
 
     <div class="card" id="routineCard" style="display: none;">
       <div id="checklistContainer"></div>
@@ -187,7 +204,6 @@
       });
     }
 
-    // CATÁLOGO TRADUCIDO AL ESPAÑOL ESTÁNDAR (Estilo FitnessOnline)
     const EXERCISE_CATALOG = [
       { id: "W01", name: "Rotaciones Articulares Dinámicas", group: "Calentamiento", pattern: "Movilidad", equipment: "Peso Corporal", restSec: 0, isBodyweight: true, isIso: false, guide: "Rotaciones escápulas, cadera, tobillos, muñecas." },
       { id: "W02", name: "Cardio Suave de Activación", group: "Calentamiento", pattern: "Cardio", equipment: "Cinta / Elíptica", restSec: 0, isBodyweight: true, isIso: false, guide: "5 min a ritmo suave para elevar temperatura." },
@@ -313,11 +329,11 @@
       }
     }
 
-    function generateWorkoutPlan() {
+    function generateWorkoutPlan(manualGroups = null) {
       const todayStr = new Date().toISOString().split('T')[0];
       const trainedToday = state.history.some(h => h.date === todayStr);
 
-      if (trainedToday) {
+      if (trainedToday && !manualGroups) {
         alert("🛡️ Ya completaste una sesión hoy. Modifica desde Historial o usa 'Añadir Bloque Extra'.");
         return;
       }
@@ -325,28 +341,33 @@
       state.completedSets = {};
       state.sessionDate = todayStr;
 
-      const lastGroupDates = {};
-      state.history.forEach(h => {
-        h.exercises.forEach(ex => {
-          if (!lastGroupDates[ex.group] || lastGroupDates[ex.group] < h.date) lastGroupDates[ex.group] = h.date;
+      let targetGroups = [];
+      if (manualGroups) {
+        targetGroups = manualGroups;
+      } else {
+        const lastGroupDates = {};
+        state.history.forEach(h => {
+          h.exercises.forEach(ex => {
+            if (!lastGroupDates[ex.group] || lastGroupDates[ex.group] < h.date) lastGroupDates[ex.group] = h.date;
+          });
         });
-      });
 
-      const today = new Date();
-      const groupsRest = [];
-      const strengthGroups = ["Pecho", "Espalda", "Cuádriceps", "Isquios", "Hombro", "Bíceps", "Tríceps", "Glúteo"];
+        const today = new Date();
+        const groupsRest = [];
+        const strengthGroups = ["Pecho", "Espalda", "Cuádriceps", "Isquios", "Hombro", "Bíceps", "Tríceps", "Glúteo"];
 
-      strengthGroups.forEach(g => {
-        let days = 30 + Math.floor(Math.random() * 5);
-        if (lastGroupDates[g]) {
-          const diff = today - new Date(lastGroupDates[g]);
-          days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
-        }
-        groupsRest.push({ group: g, days: days });
-      });
+        strengthGroups.forEach(g => {
+          let days = 30 + Math.floor(Math.random() * 5);
+          if (lastGroupDates[g]) {
+            const diff = today - new Date(lastGroupDates[g]);
+            days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+          }
+          groupsRest.push({ group: g, days: days });
+        });
 
-      groupsRest.sort((a,b) => b.days - a.days);
-      const targetGroups = [groupsRest[0].group, groupsRest[1].group];
+        groupsRest.sort((a,b) => b.days - a.days);
+        targetGroups = [groupsRest[0].group, groupsRest[1].group];
+      }
 
       document.getElementById('workoutFocus').innerText = `ENFOQUE DE HOY: ${targetGroups.join(' + ').toUpperCase()}`;
 
@@ -387,6 +408,7 @@
       state.currentRoutine = planned;
       document.getElementById('btnGen').style.display = 'none';
       document.getElementById('btnSession').style.display = 'block';
+      document.getElementById('btnOverride').style.display = 'block';
       renderChecklist();
     }
 
@@ -404,10 +426,12 @@
       if (state.isSessionActive) {
         btn.innerText = "⏹️ FINALIZAR SESIÓN Y GUARDAR";
         btn.style.background = "var(--red)";
+        document.getElementById('btnOverride').style.display = 'none';
       } else {
         btn.innerText = "▶️ INICIAR ENTRENAMIENTO";
         btn.style.background = "var(--text)";
         btn.style.color = "var(--bg)";
+        document.getElementById('btnOverride').style.display = 'block';
       }
     }
 
@@ -609,6 +633,34 @@
       document.getElementById(`body_${idx}`).style.display = "none";
     }
 
+    // MODAL DE AUTORREGULACIÓN (FORZAR GRUPOS)
+    function openOverrideModal() {
+      if(state.isSessionActive) return alert("Finaliza la sesión activa antes de cambiar el enfoque del día.");
+      const groups = ["Pecho", "Espalda", "Cuádriceps", "Isquios", "Hombro", "Bíceps", "Tríceps", "Glúteo", "Core", "Cardio"];
+      const s1 = document.getElementById('overrideG1');
+      const s2 = document.getElementById('overrideG2');
+      s1.innerHTML = '<option value="">Selecciona Grupo 1...</option>';
+      s2.innerHTML = '<option value="">Solo un grupo (Opcional)...</option>';
+      groups.forEach(g => {
+        s1.innerHTML += `<option value="${g}">${g}</option>`;
+        s2.innerHTML += `<option value="${g}">${g}</option>`;
+      });
+      document.getElementById('overrideModal').classList.add('active');
+    }
+
+    function applyOverride() {
+      const g1 = document.getElementById('overrideG1').value;
+      const g2 = document.getElementById('overrideG2').value;
+      if (!g1) return alert("Selecciona al menos un grupo principal.");
+      
+      const manualGroups = [];
+      manualGroups.push(g1);
+      if (g2 && g2 !== g1) manualGroups.push(g2);
+
+      document.getElementById('overrideModal').classList.remove('active');
+      generateWorkoutPlan(manualGroups);
+    }
+
     function openExtraExModal() {
       const groups = [...new Set(EXERCISE_CATALOG.map(e => e.group))].sort();
       const sel = document.getElementById('extraGroupSelect');
@@ -718,7 +770,9 @@
 
         document.getElementById('workoutFocus').innerText = `MODO EDICIÓN: ${past.date}`;
         switchTab('work');
-        document.getElementById('btnGen').style.display = 'none'; document.getElementById('btnSession').style.display = 'block';
+        document.getElementById('btnGen').style.display = 'none'; 
+        document.getElementById('btnSession').style.display = 'block';
+        document.getElementById('btnOverride').style.display = 'none';
         toggleSession(); renderChecklist();
       }
     }
