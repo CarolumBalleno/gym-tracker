@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Gym Tracker">
   <link rel="manifest" href="manifest.json">
   <title>Gym Tracker Pro</title>
   
   <style>
     :root {
+      /* PALETA VERDE ESMERALDA / ZINC */
       --bg: #09090b;
       --card: #18181b;
       --card-sub: #121215;
-      --accent: #2563eb;
-      --accent-hover: #1d4ed8;
-      --green: #16a34a;
-      --red: #dc2626;
+      --accent: #10b981; /* Verde Esmeralda Técnico */
+      --accent-hover: #059669;
+      --red: #ef4444;
       --text: #f4f4f5;
       --text-sec: #a1a1aa;
       --border: #27272a;
@@ -30,54 +29,45 @@
       background-color: var(--bg); color: var(--text); user-select: none;
     }
 
-    /* BARRA DE PESTAÑAS NATIVA */
+    /* PESTAÑAS */
     .tab-bar { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .tab-btn {
-      flex: 1; padding: 10px 4px; background: var(--card); color: var(--text-sec); border: 1px solid var(--border);
-      border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; text-align: center;
-    }
-    .tab-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .tab-btn { flex: 1; padding: 10px 4px; background: var(--card); color: var(--text-sec); border: 1px solid var(--border); border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; text-align: center; }
+    .tab-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 
     .header { margin-bottom: 16px; }
     h1 { font-size: 20px; margin: 0; font-weight: 800; letter-spacing: -0.5px; text-transform: uppercase; }
-    .subtitle { font-size: 11px; color: var(--text-sec); font-weight: 500; margin-top: 4px; }
+    .subtitle { font-size: 11px; color: var(--accent); font-weight: 700; margin-top: 4px; }
 
     .card { background: var(--card); border-radius: 8px; padding: 14px; margin-bottom: 14px; border: 1px solid var(--border); }
     
-    .primary-btn {
-      width: 100%; background: var(--text); color: var(--bg); border: none; padding: 14px; border-radius: 6px;
-      font-size: 13px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-bottom: 10px;
-    }
-    .session-toggle-btn {
-      width: 100%; background: var(--accent); color: white; border: none; padding: 14px; border-radius: 6px;
-      font-size: 13px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-bottom: 14px; display: none;
-    }
-
+    .primary-btn { width: 100%; background: var(--accent); color: var(--bg); border: none; padding: 14px; border-radius: 6px; font-size: 13px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-bottom: 10px; }
+    .primary-btn:active { opacity: 0.8; }
+    
+    .session-toggle-btn { width: 100%; background: var(--text); color: var(--bg); border: none; padding: 14px; border-radius: 6px; font-size: 13px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-bottom: 14px; display: none; }
+    
+    .btn-extra { background: var(--bg); color: var(--text-sec); border: 1px dashed var(--border); font-size: 11px; padding: 12px; margin-top: 10px; width: 100%; cursor: pointer; font-weight: 700; text-transform: uppercase; }
+    
     label { font-size: 10px; color: var(--text-sec); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
-    select, input {
-      width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
-      padding: 12px; border-radius: 6px; font-size: 14px; outline: none; margin-bottom: 10px; -webkit-appearance: none;
-    }
+    select, input, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 6px; font-size: 14px; outline: none; margin-bottom: 10px; -webkit-appearance: none; }
 
-    .phase-tag { font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin: 14px 0 6px 0; }
+    .phase-tag { font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin: 18px 0 8px 0; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
 
-    /* TARJETAS DE EJERCICIO EN VIVO */
+    /* CHECKLIST EJERCICIOS */
     .checklist-item { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 10px; overflow: hidden; }
-    .checklist-item.completed { border-color: var(--green); }
+    .checklist-item.completed { border-color: var(--accent); }
     .checklist-header { padding: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--card-sub); }
     .checklist-title { font-weight: 800; font-size: 13px; text-transform: uppercase; flex: 1; margin-right: 8px; }
     .checklist-actions { display: flex; gap: 4px; align-items: center; }
     .icon-btn { background: var(--card); border: 1px solid var(--border); color: var(--text-sec); border-radius: 4px; padding: 6px 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
     .badge { font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 4px; background: var(--card); color: var(--text-sec); }
-    .checklist-item.completed .badge { background: var(--green); color: white; }
-
+    .checklist-item.completed .badge { background: var(--accent); color: var(--bg); }
     .checklist-body { padding: 12px; border-top: 1px solid var(--border); display: none; }
 
     /* GUÍAS */
     .tech-box { background: #000; border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-bottom: 10px; font-size: 11px; color: var(--text-sec); line-height: 1.4; }
     .ex-img { width: 100%; max-height: 150px; object-fit: contain; background: #000; border-radius: 4px; margin-bottom: 8px; }
 
-    /* TABLA DE SERIES */
+    /* TABLAS DE SERIES */
     .table-headers { display: flex; gap: 4px; font-size: 9px; font-weight: 800; color: var(--text-sec); text-transform: uppercase; margin-bottom: 6px; }
     .col-num { width: 22px; text-align: center; }
     .col-w { flex: 1; text-align: center; }
@@ -86,7 +76,7 @@
     .col-action { width: 34px; text-align: center; }
 
     .set-row { display: flex; gap: 4px; align-items: center; margin-bottom: 6px; background: var(--bg); padding: 4px; border-radius: 6px; border: 1px solid var(--border); }
-    .set-row.locked { opacity: 0.6; border-color: var(--green); }
+    .set-row.locked { opacity: 0.5; border-color: var(--accent); }
     .set-num { font-weight: 700; width: 22px; color: var(--text-sec); text-align: center; font-size: 11px; }
     .set-row input { margin-bottom: 0; text-align: center; font-weight: 700; background: var(--card); border: none; padding: 8px 4px; border-radius: 4px; font-size: 13px; }
     
@@ -95,38 +85,60 @@
     .rir-btn.active { background: var(--text); color: var(--bg); }
 
     .btn-action-set { width: 34px; height: 34px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .btn-sub { background: var(--bg); color: var(--text-sec); border: 1px dashed var(--border); font-size: 10px; padding: 8px; margin-bottom: 10px; width: 100%; cursor: pointer; font-weight: 700; text-transform: uppercase;}
+    .btn-finish-ex { width: 100%; background: var(--accent); color: var(--bg); border: none; padding: 12px; border-radius: 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 8px; display: none; }
 
-    .btn-sub { background: var(--bg); color: var(--text-sec); border: 1px dashed var(--border); font-size: 11px; padding: 8px; margin-bottom: 10px; width: 100%; cursor: pointer; font-weight: 700; }
-    .btn-finish-ex { width: 100%; background: var(--green); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; margin-top: 8px; display: none; }
-
-    /* MODAL DESCANSO ENTRE SERIES */
-    .rest-modal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9,9,11,0.96); z-index: 9999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s;
-    }
-    .rest-modal.active { opacity: 1; pointer-events: all; }
-    .rest-title { font-size: 12px; color: var(--text-sec); font-weight: 800; letter-spacing: 2px; margin-bottom: 16px; text-transform: uppercase; }
-    .rest-timer { font-size: 64px; font-family: monospace; font-weight: 800; color: var(--accent); margin-bottom: 30px; }
-    .rest-controls { display: flex; gap: 12px; }
+    /* MODAL DESCANSO / EXTRAS */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9,9,11,0.96); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; padding: 20px; backdrop-filter: blur(5px); }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; width: 100%; max-width: 400px; }
+    .rest-title { font-size: 12px; color: var(--text-sec); font-weight: 800; letter-spacing: 2px; margin-bottom: 16px; text-transform: uppercase; text-align: center; }
+    .rest-timer { font-size: 64px; font-family: monospace; font-weight: 800; color: var(--accent); margin-bottom: 30px; text-align: center; }
+    .rest-controls { display: flex; gap: 12px; justify-content: center; }
     .rest-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 12px 20px; border-radius: 6px; font-size: 13px; font-weight: 800; cursor: pointer; }
     .rest-btn.skip { background: var(--text); color: var(--bg); }
 
     /* HISTORIAL */
-    .hist-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-    .hist-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 8px; }
-    .hist-date { font-size: 12px; font-weight: 800; color: var(--text); text-transform: uppercase; }
-    .hist-tonnage { font-size: 11px; color: var(--green); font-weight: 700; }
+    .hist-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+    .hist-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 10px; }
+    .hist-date { font-size: 13px; font-weight: 800; color: var(--text); text-transform: uppercase; }
+    .hist-metrics { display: flex; gap: 12px; font-size: 11px; font-weight: 700; }
+    .hist-ex-row { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-bottom: 6px; }
+    .hist-ex-title { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; display: flex; justify-content: space-between; color: var(--accent); }
+    .hist-sets-detail { font-size: 11px; color: var(--text-sec); font-family: monospace; }
+    .hist-actions { display: flex; gap: 8px; margin-top: 10px; }
   </style>
 </head>
 <body>
 
-  <!-- MODAL DE DESCANSO -->
-  <div class="rest-modal" id="restModal">
-    <div class="rest-title">Recuperación Intramuscular</div>
-    <div class="rest-timer" id="timerDisplay">00:00</div>
-    <div class="rest-controls">
-      <button class="rest-btn" onclick="addTimer(30)">+30s</button>
-      <button class="rest-btn skip" onclick="closeTimer()">SALTAR</button>
+  <!-- MODAL TEMPORIZADOR -->
+  <div class="modal-overlay" id="restModal">
+    <div>
+      <div class="rest-title">Recuperación Intramuscular</div>
+      <div class="rest-timer" id="timerDisplay">00:00</div>
+      <div class="rest-controls">
+        <button class="rest-btn" onclick="addTimer(30)">+30s</button>
+        <button class="rest-btn skip" onclick="closeTimer()">SALTAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AÑADIR EJERCICIO EXTRA -->
+  <div class="modal-overlay" id="extraExModal">
+    <div class="modal-content">
+      <div class="rest-title" style="margin-bottom: 20px;">Añadir Bloque Extra</div>
+      <label>Grupo Muscular</label>
+      <select id="extraGroupSelect" onchange="populateExtraExercises()">
+        <option value="">Selecciona Grupo...</option>
+      </select>
+      <label>Ejercicio</label>
+      <select id="extraExSelect">
+        <option value="">Primero selecciona grupo...</option>
+      </select>
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button class="primary-btn" style="margin: 0;" onclick="confirmExtraExercise()">Añadir a Rutina</button>
+        <button class="primary-btn" style="margin: 0; background: var(--bg); color: var(--text); border: 1px solid var(--border);" onclick="document.getElementById('extraExModal').classList.remove('active')">Cancelar</button>
+      </div>
     </div>
   </div>
 
@@ -141,7 +153,7 @@
   <div id="viewWork">
     <div class="header">
       <h1>Protocolo de Entrenamiento</h1>
-      <div class="subtitle" id="workoutStatusSubtitle">Sistema Local-First Activo | 0 ms Latencia</div>
+      <div class="subtitle" id="workoutFocus">SISTEMA LOCAL-FIRST | CERO LATENCIA</div>
     </div>
 
     <button class="primary-btn" id="btnGen" onclick="generateWorkoutPlan()">Crear Plan Óptimo del Día</button>
@@ -149,113 +161,83 @@
 
     <div class="card" id="routineCard" style="display: none;">
       <div id="checklistContainer"></div>
-      <button class="primary-btn" style="background: var(--card); color: var(--text); border: 1px dashed var(--border); margin-top: 10px;" onclick="promptAddExtraExercise()">+ Añadir Bloque Extra a la Sesión</button>
+      <button class="btn-extra" onclick="openExtraExModal()">+ Añadir Bloque Extra a la Sesión (Estructurado)</button>
     </div>
   </div>
 
   <!-- VISTA 2: HISTORIAL -->
   <div id="viewHist" style="display: none;">
     <div class="header">
-      <h1>Historial y Métricas</h1>
-      <div class="subtitle">Auditoría de volumen de trabajo local</div>
+      <h1>Auditoría de Historial</h1>
+      <div class="subtitle">Gestión de volumen y corrección de datos</div>
     </div>
     <div id="historyList"></div>
   </div>
 
-  <!-- VISTA 3: GESTIÓN DE DATOS / BACKUP -->
+  <!-- VISTA 3: DATOS -->
   <div id="viewBack" style="display: none;">
     <div class="header">
-      <h1>Gestión de Datos</h1>
-      <div class="subtitle">Exportación y seguridad de tu base de datos</div>
+      <h1>Gestión de Base de Datos</h1>
+      <div class="subtitle">Importación desde Google Sheets y Backups</div>
     </div>
     <div class="card">
-      <button class="primary-btn" onclick="exportDataBackup()">📥 Exportar Copia de Seguridad (JSON)</button>
-      <input type="file" id="importInput" style="display: none;" onchange="importDataBackup(event)">
-      <button class="primary-btn" style="background: var(--card); color: var(--text); border: 1px solid var(--border);" onclick="document.getElementById('importInput').click()">📤 Importar Copia de Seguridad</button>
+      <label>Pegar JSON de Google Sheets para Migración</label>
+      <textarea id="importText" rows="5" placeholder="Pega aquí el texto generado por Apps Script..."></textarea>
+      <button class="primary-btn" onclick="importFromText()">📥 Importar Historial</button>
+      
+      <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+      
+      <button class="primary-btn" style="background: var(--card-sub); color: var(--text); border: 1px solid var(--border);" onclick="exportDataBackup()">📤 Descargar Copia de Seguridad Local (JSON)</button>
+      <button class="primary-btn" style="background: var(--red); color: white;" onclick="clearAllData()">⚠️ Borrar Toda la Base de Datos</button>
     </div>
   </div>
 
   <script>
     // -------------------------------------------------------------
-    // CATÁLOGO MASIVO (100+ EJERCICIOS CON MATRIZ BIOMECÁNICA)
+    // CATÁLOGO MASIVO (INCLUYE CORE ESTRICTO)
     // -------------------------------------------------------------
     const EXERCISE_CATALOG = [
-      // CALENTAMIENTO
-      { id: "W01", name: "Movilidad Articular y Rotaciones", group: "Calentamiento", pattern: "Movilidad", equipment: "Peso Corporal", restSec: 0, isBodyweight: true, isIso: false, guide: "5 min rotaciones hombros, escápulas y cadera." },
-      { id: "W02", name: "Cardio Suave en Cinta/Bici", group: "Calentamiento", pattern: "Cardio", equipment: "Cinta / Bici", restSec: 0, isBodyweight: true, isIso: false, guide: "5 min a ritmo muy suave para elevar temperatura." },
-      { id: "W03", name: "Series de Aproximación", group: "Calentamiento", pattern: "Aproximación", equipment: "Según Ejercicio", restSec: 60, isBodyweight: false, isIso: false, guide: "1-2 series con 40-50% del peso antes del primer ejercicio pesado." },
+      // FASE 1: CALENTAMIENTO
+      { id: "W01", name: "Movilidad Articular Dinámica", group: "Calentamiento", pattern: "Movilidad", equipment: "Peso Corporal", restSec: 0, isBodyweight: true, isIso: false, guide: "5 min rotaciones de escápulas, cadera y rodillas." },
+      { id: "W02", name: "Cardio Suave de Activación", group: "Calentamiento", pattern: "Cardio", equipment: "Cinta / Elíptica", restSec: 0, isBodyweight: true, isIso: false, guide: "5-10 min ritmo suave para elevar temperatura." },
 
-      // PECHO (EMPUJE HORIZONTAL)
+      // PECHO
       { id: "P01", name: "Press Banca Plano con Barra", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Barra Olímpica", restSec: 120, isBodyweight: false, isIso: false, guide: "Retracción escapular, barra al esternón." },
       { id: "P02", name: "Press Plano con Mancuernas", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Baja controlado hasta la línea del pectoral." },
-      { id: "P03", name: "Press de Pecho en Máquina", group: "Pecho", pattern: "Empuje Horizontal", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Empuje guiado manteniendo hombros fijos atrás." },
-      { id: "P04", name: "Press Inclinado con Mancuernas", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Banco a 30 grados para enfocar haz clavicular." },
-      { id: "P05", name: "Press Inclinado con Barra", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Barra Olímpica", restSec: 120, isBodyweight: false, isIso: false, guide: "Descenso hacia la parte superior del pecho." },
-      { id: "P06", name: "Press Inclinado en Máquina", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Tensión continua en el pectoral superior." },
-      { id: "P07", name: "Aperturas en Máquina (Pec Deck)", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Máquina Pec Deck", restSec: 75, isBodyweight: false, isIso: false, guide: "Codos semiflexionados, junta apretando 1s." },
-      { id: "P08", name: "Cruce de Poleas desde Abajo", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Polea Doble", restSec: 75, isBodyweight: false, isIso: false, guide: "Tira hacia arriba y al centro." },
-      { id: "P09", name: "Cruce de Poleas desde Arriba", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Polea Doble", restSec: 75, isBodyweight: false, isIso: false, guide: "Tira hacia abajo cruzando al frente." },
-      { id: "P10", name: "Fondos en Paralelas (Pecho)", group: "Pecho", pattern: "Empuje Declinado", equipment: "Peso Corporal", restSec: 120, isBodyweight: true, isIso: false, guide: "Inclina el torso hacia adelante para activar pectoral." },
+      { id: "P03", name: "Press Inclinado con Mancuernas", group: "Pecho", pattern: "Empuje Inclinado", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Banco a 30 grados para enfocar haz clavicular." },
+      { id: "P04", name: "Cruce de Poleas / Aperturas", group: "Pecho", pattern: "Aducción Horizontal", equipment: "Polea / Pec Deck", restSec: 75, isBodyweight: false, isIso: false, guide: "Tensión constante apretando 1s al centro." },
 
-      // ESPALDA (TRACCIÓN VERTICAL Y HORIZONTAL)
-      { id: "E01", name: "Dominadas Pronas", group: "Espalda", pattern: "Tracción Vertical", equipment: "Peso Corporal", restSec: 120, isBodyweight: true, isIso: false, guide: "Pecho hacia la barra, tracción con los dorsales." },
-      { id: "E02", name: "Dominadas Neutras", group: "Espalda", pattern: "Tracción Vertical", equipment: "Peso Corporal", restSec: 120, isBodyweight: true, isIso: false, guide: "Agarre neutro para mayor comodidad articular." },
-      { id: "E03", name: "Jalón al Pecho Agarre Abierto", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea Alta", restSec: 90, isBodyweight: false, isIso: false, guide: "Tira con los codos apuntando al suelo." },
-      { id: "E04", name: "Jalón al Pecho Agarre Neutro", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea Alta", restSec: 90, isBodyweight: false, isIso: false, guide: "Gran rango de estiramiento dorsal." },
-      { id: "E05", name: "Jalón Unilateral en Polea", group: "Espalda", pattern: "Tracción Vertical", equipment: "Polea Alta", restSec: 75, isBodyweight: false, isIso: false, guide: "Tira pegando el codo a la cadera." },
-      { id: "E06", name: "Remo con Barra 45°", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Barra Olímpica", restSec: 120, isBodyweight: false, isIso: false, guide: "Torso rígido a 45 grados, barra hacia el ombligo." },
-      { id: "E07", name: "Remo con Mancuerna en Banco", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Tracciona hacia la cadera sin rotar el torso." },
-      { id: "E08", name: "Remo en Máquina / Gironda", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Máquina / Polea", restSec: 90, isBodyweight: false, isIso: false, guide: "Saca pecho al contraer y abre escápulas al estirar." },
-      { id: "E09", name: "Remo en Barra T apoyado", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Barra T / Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Pecho apoyado, elimina estrés lumbar." },
-      { id: "E10", name: "Pull-over en Polea Alta", group: "Espalda", pattern: "Extensión de Hombro", equipment: "Polea Alta / Cuerda", restSec: 75, isBodyweight: false, isIso: false, guide: "Brazos casi rectos, tracciona hacia muslos." },
+      // ESPALDA
+      { id: "E01", name: "Dominadas / Jalón al Pecho", group: "Espalda", pattern: "Tracción Vertical", equipment: "Peso Corporal / Polea", restSec: 120, isBodyweight: true, isIso: false, guide: "Pecho a la barra, tracción desde los codos." },
+      { id: "E02", name: "Remo con Barra", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Barra Olímpica", restSec: 120, isBodyweight: false, isIso: false, guide: "Torso a 45 grados, barra hacia el ombligo." },
+      { id: "E03", name: "Remo con Mancuerna Unilateral", group: "Espalda", pattern: "Tracción Horizontal", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Evita rotar el tronco al subir el peso." },
+      { id: "E04", name: "Pull-over en Polea Alta", group: "Espalda", pattern: "Extensión de Hombro", equipment: "Polea Alta", restSec: 75, isBodyweight: false, isIso: false, guide: "Brazos casi rectos aislando el dorsal." },
 
-      // CUÁDRICEPS (DOMINANTE RODILLA)
-      { id: "Q01", name: "Prensa de Piernas 45°", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Prensa", restSec: 120, isBodyweight: false, isIso: false, guide: "Pies al ancho de hombros, baja profundo sin despegar cadera." },
-      { id: "Q02", name: "Sentadilla Trasera con Barra", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Barra / Rack", restSec: 180, isBodyweight: false, isIso: false, guide: "Rompe el paralelo manteniendo el tronco firme." },
-      { id: "Q03", name: "Sentadilla Hack en Máquina", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Máquina Hack", restSec: 120, isBodyweight: false, isIso: false, guide: "Apoyo total de espalda, gran estímulo en cuádriceps." },
-      { id: "Q04", name: "Sentadilla Búlgara", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuernas / Banco", restSec: 90, isBodyweight: false, isIso: false, guide: "Baja vertical sobre la pierna delantera." },
-      { id: "Q05", name: "Extensiones de Cuádriceps", group: "Cuádriceps", pattern: "Extensión de Rodilla", equipment: "Máquina Extensión", restSec: 75, isBodyweight: false, isIso: false, guide: "Extiende completo y pausa 1s arriba." },
-      { id: "Q06", name: "Zancudas Caminando", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Pasos firmes manteniendo control." },
+      // CUÁDRICEPS Y GLÚTEO/ISQUIO
+      { id: "Q01", name: "Sentadilla (Barra o Hack)", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Barra / Máquina", restSec: 180, isBodyweight: false, isIso: false, guide: "Rompe el paralelo manteniendo el tronco firme." },
+      { id: "Q02", name: "Prensa de Piernas 45°", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Prensa", restSec: 120, isBodyweight: false, isIso: false, guide: "Baja profundo sin despegar el glúteo." },
+      { id: "Q03", name: "Sentadilla Búlgara", group: "Cuádriceps", pattern: "Dominante Rodilla", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Baja verticalmente sobre la pierna adelantada." },
+      { id: "H01", name: "Peso Muerto Rumano", group: "Isquios", pattern: "Dominante Cadera", equipment: "Barra / Mancuernas", restSec: 120, isBodyweight: false, isIso: false, guide: "Cadera atrás sintiendo estiramiento femoral." },
+      { id: "H02", name: "Curl Femoral (Tumbado o Sentado)", group: "Isquios", pattern: "Flexión de Rodilla", equipment: "Máquina", restSec: 75, isBodyweight: false, isIso: false, guide: "Flexiona rápido y regresa en 3 segundos." },
+      { id: "H03", name: "Hip Thrust", group: "Glúteo", pattern: "Extensión de Cadera", equipment: "Barra", restSec: 120, isBodyweight: false, isIso: false, guide: "Empuja desde talones, máxima contracción arriba." },
 
-      // ISQUIOS Y GLÚTEO (DOMINANTE CADERA)
-      { id: "H01", name: "Peso Muerto Rumano", group: "Isquios / Glúteo", pattern: "Dominante Cadera", equipment: "Barra / Mancuernas", restSec: 120, isBodyweight: false, isIso: false, guide: "Lleva cadera atrás sintiendo estiramiento en isquios." },
-      { id: "H02", name: "Curl Femoral Tumbado", group: "Isquios / Glúteo", pattern: "Flexión de Rodilla", equipment: "Máquina Femoral", restSec: 75, isBodyweight: false, isIso: false, guide: "Flexiona rápido y regresa en 2-3s." },
-      { id: "H03", name: "Curl Femoral Sentado", group: "Isquios / Glúteo", pattern: "Flexión de Rodilla", equipment: "Máquina Femoral", restSec: 75, isBodyweight: false, isIso: false, guide: "Excelente activación con cadera flexionada." },
-      { id: "H04", name: "Hip Thrust con Barra", group: "Isquios / Glúteo", pattern: "Extensión de Cadera", equipment: "Barra / Banco", restSec: 120, isBodyweight: false, isIso: false, guide: "Empuja con talones y aprieta glúteo arriba." },
-      { id: "H05", name: "Abductor en Máquina", group: "Isquios / Glúteo", pattern: "Abducción de Cadera", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Abre separando rodillas con control." },
+      // HOMBRO, BÍCEPS Y TRÍCEPS
+      { id: "S01", name: "Press Militar (Barra o Mancuernas)", group: "Hombro", pattern: "Empuje Vertical", equipment: "Pesos Libres", restSec: 90, isBodyweight: false, isIso: false, guide: "Empuje vertical sin arquear la zona lumbar." },
+      { id: "S02", name: "Elevaciones Laterales", group: "Hombro", pattern: "Abducción", equipment: "Mancuernas / Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Codos paralelos al suelo." },
+      { id: "B01", name: "Curl de Bíceps (Barra o Mancuerna)", group: "Bíceps", pattern: "Flexión de Codo", equipment: "Pesos Libres", restSec: 60, isBodyweight: false, isIso: false, guide: "Sin balancear el torso." },
+      { id: "T01", name: "Extensión de Tríceps en Polea", group: "Tríceps", pattern: "Extensión de Codo", equipment: "Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Codos pegados al cuerpo en todo momento." },
 
-      // HOMBRO (EMPUJE VERTICAL Y DELTOIDES)
-      { id: "S01", name: "Press Militar con Mancuernas", group: "Hombro", pattern: "Empuje Vertical", equipment: "Mancuernas", restSec: 90, isBodyweight: false, isIso: false, guide: "Empuja sobre la cabeza sin arquear lumbar." },
-      { id: "S02", name: "Press de Hombros en Máquina", group: "Hombro", pattern: "Empuje Vertical", equipment: "Máquina", restSec: 90, isBodyweight: false, isIso: false, guide: "Trayectoria fija y segura para empujar pesado." },
-      { id: "S03", name: "Elevaciones Laterales con Mancuernas", group: "Hombro", pattern: "Abducción Hombro", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Codos alineados con el plano escapular." },
-      { id: "S04", name: "Elevaciones Laterales en Polea", group: "Hombro", pattern: "Abducción Hombro", equipment: "Polea Baja", restSec: 60, isBodyweight: false, isIso: false, guide: "Tensión continua en todo el rango lateral." },
-      { id: "S05", name: "Pájaros en Polea / Pec Deck Inverso", group: "Hombro", pattern: "Deltoides Posterior", equipment: "Máquina / Polea", restSec: 60, isBodyweight: false, isIso: false, guide: "Abre brazos enfocando deltoides posterior." },
-      { id: "S06", name: "Face Pull con Cuerda", group: "Hombro", pattern: "Deltoides Posterior", equipment: "Polea Alta", restSec: 60, isBodyweight: false, isIso: false, guide: "Tira hacia la frente con rotación externa." },
+      // FASE 3: CORE Y ESTABILIDAD (ESENCIAL)
+      { id: "C01", name: "Plancha Abdominal Isométrica", group: "Core", pattern: "Isométrico", equipment: "Peso Corporal", restSec: 60, isBodyweight: true, isIso: true, guide: "Alineación total, activa glúteo y abdomen." },
+      { id: "C02", name: "Crunch en Polea Alta", group: "Core", pattern: "Flexión Tronco", equipment: "Polea Alta", restSec: 60, isBodyweight: false, isIso: false, guide: "Aproxima costillas a la pelvis de rodillas." },
+      { id: "C03", name: "Elevación de Piernas Colgado", group: "Core", pattern: "Flexión Cadera", equipment: "Barra", restSec: 60, isBodyweight: true, isIso: false, guide: "Eleva rodillas al pecho sin inercia." },
 
-      // BRAZOS (BÍCEPS Y TRÍCEPS)
-      { id: "B01", name: "Curl con Barra Z / Recta", group: "Bíceps", pattern: "Flexión de Codo", equipment: "Barra", restSec: 75, isBodyweight: false, isIso: false, guide: "Codos pegados a los costados, sin balanceo." },
-      { id: "B02", name: "Curl Alterno con Mancuernas", group: "Bíceps", pattern: "Flexión de Codo", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Supina la muñeca al subir." },
-      { id: "B03", name: "Curl Martillo con Mancuernas", group: "Bíceps", pattern: "Flexión Neutra", equipment: "Mancuernas", restSec: 60, isBodyweight: false, isIso: false, guide: "Agarre neutro enfocado en braquial y antebrazo." },
-      { id: "B04", name: "Curl en Polea Baja", group: "Bíceps", pattern: "Flexión de Codo", equipment: "Polea Baja", restSec: 60, isBodyweight: false, isIso: false, guide: "Tensión constante en el pico de contracción." },
-      { id: "T01", name: "Extensión de Tríceps en Polea con Cuerda", group: "Tríceps", pattern: "Extensión de Codo", equipment: "Polea Alta", restSec: 60, isBodyweight: false, isIso: false, guide: "Abre la cuerda abajo apretando el tríceps." },
-      { id: "T02", name: "Press Francés con Barra Z", group: "Tríceps", pattern: "Extensión de Codo", equipment: "Barra Z / Banco", restSec: 75, isBodyweight: false, isIso: false, guide: "Flexiona codos hacia la frente sin abrirlos." },
-      { id: "T03", name: "Extensión de Tríceps sobre la Cabeza", group: "Tríceps", pattern: "Extensión de Codo", equipment: "Polea / Mancuerna", restSec: 60, isBodyweight: false, isIso: false, guide: "Gran estiramiento de la cabeza larga." },
-      { id: "T04", name: "Fondos en Máquina o Banco", group: "Tríceps", pattern: "Extensión de Codo", equipment: "Máquina / Banco", restSec: 75, isBodyweight: false, isIso: false, guide: "Empuja hacia abajo con fuerza de tríceps." },
-
-      // GEMELOS Y CORE
-      { id: "C01", name: "Elevación de Talones de Pie", group: "Gemelos", pattern: "Flexión Plantar", equipment: "Máquina", restSec: 60, isBodyweight: false, isIso: false, guide: "Sube al máximo y estira lento abajo." },
-      { id: "C02", name: "Elevación de Talones Sentado", group: "Gemelos", pattern: "Flexión Plantar", equipment: "Máquina Sentado", restSec: 60, isBodyweight: false, isIso: false, guide: "Enfoque principal en el músculo sóleo." },
-      { id: "AB01", name: "Plancha Abdominal Isométrica", group: "Core", pattern: "Isométrico", equipment: "Peso Corporal", restSec: 60, isBodyweight: true, isIso: true, guide: "Bloqueo total abdominal y de glúteos." },
-      { id: "AB02", name: "Crunch en Polea Alta", group: "Core", pattern: "Flexión de Tronco", equipment: "Polea Alta", restSec: 60, isBodyweight: false, isIso: false, guide: "De rodillas, aproxima costillas a pelvis." },
-      { id: "AB03", name: "Elevación de Piernas Colgado", group: "Core", pattern: "Flexión de Cadera", equipment: "Barra / Torre", restSec: 60, isBodyweight: true, isIso: false, guide: "Eleva rodillas/piernas controlando el balanceo." },
-
-      // CARDIO FINAL
-      { id: "CR01", name: "Caminata Inclinada en Cinta (Zona 2)", group: "Cardio", pattern: "Aeróbico", equipment: "Cinta", restSec: 0, isBodyweight: true, isIso: false, guide: "Inclinación 8-12%, velocidad 4-5 km/h, 15-20 min." },
-      { id: "CR02", name: "Bicicleta Estática / Elíptica", group: "Cardio", pattern: "Aeróbico", equipment: "Bici / Elíptica", restSec: 0, isBodyweight: true, isIso: false, guide: "Cadencia moderada y respiración controlada." }
+      // FASE 4: CARDIO / VUELTA A LA CALMA
+      { id: "CR01", name: "Caminata Inclinada (Zona 2)", group: "Cardio", pattern: "Aeróbico", equipment: "Cinta", restSec: 0, isBodyweight: true, isIso: false, guide: "Inclinación 10%, vel 4.5. Oxigenación." },
     ];
 
     // -------------------------------------------------------------
-    // MOTOR LOCAL DE ALMACENAMIENTO Y ESTADO
+    // ESTADO LOCAL DE LA APLICACIÓN
     // -------------------------------------------------------------
     let state = {
       isSessionActive: false,
@@ -266,13 +248,7 @@
       timeLeft: 0
     };
 
-    window.onload = () => {
-      // Registro de Service Worker para funcionamiento sin conexión
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(()=>{});
-      }
-      renderHistoryView();
-    };
+    window.onload = () => { renderHistoryView(); };
 
     function switchTab(t) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -293,32 +269,31 @@
       }
     }
 
-    // GENERADOR DETERMINISTA DE RUTINA
+    // -------------------------------------------------------------
+    // MOTOR DE PLANIFICACIÓN
+    // -------------------------------------------------------------
     function generateWorkoutPlan() {
       const todayStr = new Date().toISOString().split('T')[0];
       const trainedToday = state.history.some(h => h.date === todayStr);
 
       if (trainedToday) {
-        alert("🛡️ Ya has completado un entrenamiento hoy. El descanso es esencial para la hipertrofia. Usa '+ Añadir Bloque Extra' si necesitas registrar algo puntual.");
+        alert("🛡️ PROTECCIÓN: Ya has completado una sesión hoy. Modifica la sesión desde Historial o usa 'Añadir Bloque Extra' si olvidaste registrar algo.");
         return;
       }
 
-      // Calcular descanso por grupos musculares
       const lastGroupDates = {};
       state.history.forEach(h => {
         h.exercises.forEach(ex => {
-          if (!lastGroupDates[ex.group] || lastGroupDates[ex.group] < h.date) {
-            lastGroupDates[ex.group] = h.date;
-          }
+          if (!lastGroupDates[ex.group] || lastGroupDates[ex.group] < h.date) lastGroupDates[ex.group] = h.date;
         });
       });
 
       const today = new Date();
       const groupsRest = [];
-      const strengthGroups = ["Pecho", "Espalda", "Cuádriceps", "Isquios / Glúteo", "Hombro", "Bíceps", "Tríceps", "Gemelos", "Core"];
+      const strengthGroups = ["Pecho", "Espalda", "Cuádriceps", "Isquios", "Hombro", "Bíceps", "Tríceps", "Glúteo"];
 
       strengthGroups.forEach(g => {
-        let days = 30;
+        let days = 30 + Math.floor(Math.random() * 5); // Evitar empates perfectos en músculos no entrenados
         if (lastGroupDates[g]) {
           const diff = today - new Date(lastGroupDates[g]);
           days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
@@ -329,25 +304,26 @@
       groupsRest.sort((a,b) => b.days - a.days);
       const targetGroups = [groupsRest[0].group, groupsRest[1].group];
 
+      document.getElementById('workoutFocus').innerText = `ENFOQUE DE HOY: ${targetGroups.join(' + ').toUpperCase()}`;
+
       const planned = [];
       
-      // Calentamiento
-      planned.push({ ...EXERCISE_CATALOG[0], phase: "FASE 1: CALENTAMIENTO", target: "10 min", weight: 0 });
+      // FASE 1: Calentamiento
+      planned.push({ ...EXERCISE_CATALOG[0], phase: "FASE 1: CALENTAMIENTO Y ACTIVACIÓN", target: "10 min", weight: 0 });
 
-      // 4 Ejercicios de Fuerza de los grupos con más descanso
+      // FASE 2: Fuerza (4 ejercicios)
       let count = 0;
       for (let ex of EXERCISE_CATALOG) {
-        if (targetGroups.includes(ex.group) && count < 4 && ex.group !== "Calentamiento" && ex.group !== "Cardio") {
+        if (targetGroups.includes(ex.group) && count < 4 && ex.group !== "Core" && ex.group !== "Cardio" && ex.group !== "Calentamiento") {
           let w = ex.isBodyweight ? 0 : 20;
-          let note = "Carga inicial";
+          let note = ex.isBodyweight ? "Lastre (+kg) / Ayuda (-kg)" : "Carga inicial";
           
-          // Buscar último rendimiento para sobrecarga o descarga
           const lastLog = findLastExerciseLog(ex.name);
           if (lastLog && lastLog.sets.length > 0) {
             const lastSet = lastLog.sets[lastLog.sets.length - 1];
             if (lastSet.reps < 8 && !ex.isIso) {
               w = ex.isBodyweight ? lastSet.weight : Math.round((lastSet.weight * 0.9) * 2) / 2;
-              note = "Descarga táctica (-10%)";
+              note = "Descarga táctica (-10%) por fallo previo";
             } else if (lastSet.rir >= 2 && !ex.isIso) {
               w = ex.isBodyweight ? lastSet.weight : Math.round((lastSet.weight * 1.025) * 2) / 2;
               note = "Sobrecarga progresiva (+2.5%)";
@@ -356,21 +332,21 @@
               note = "Mantenimiento";
             }
           }
-
-          planned.push({
-            ...ex,
-            phase: "FASE 2: FUERZA E HIPERTROFIA",
-            target: ex.isIso ? "45s-60s" : "8-12",
-            weight: w,
-            note: note
-          });
+          planned.push({ ...ex, phase: "FASE 2: FUERZA E HIPERTROFIA", target: "8-12 reps", weight: w, note: note });
           count++;
         }
       }
 
-      // Cardio
+      // FASE 3: Core Estricto (Seguridad Lumbar)
+      const coreExercises = EXERCISE_CATALOG.filter(e => e.group === "Core");
+      const randomCore = coreExercises[Math.floor(Math.random() * coreExercises.length)];
+      if (randomCore) {
+        planned.push({ ...randomCore, phase: "FASE 3: ESTABILIZACIÓN CORE", target: randomCore.isIso ? "45s - 60s" : "10-15 reps", weight: 0, note: "Protección espinal" });
+      }
+
+      // FASE 4: Cardio
       const cardio = EXERCISE_CATALOG.find(e => e.group === "Cardio");
-      if (cardio) planned.push({ ...cardio, phase: "FASE 3: VUELTA A LA CALMA", target: "15 min", weight: 0 });
+      if (cardio) planned.push({ ...cardio, phase: "FASE 4: VUELTA A LA CALMA", target: "15 min", weight: 0, note: "Zona 2 constante" });
 
       state.currentRoutine = planned;
       document.getElementById('btnGen').style.display = 'none';
@@ -390,14 +366,18 @@
       state.isSessionActive = !state.isSessionActive;
       const btn = document.getElementById('btnSession');
       if (state.isSessionActive) {
-        btn.innerText = "⏹️ FINALIZAR SESIÓN";
+        btn.innerText = "⏹️ FINALIZAR SESIÓN Y GUARDAR";
         btn.style.background = "var(--red)";
       } else {
         btn.innerText = "▶️ INICIAR ENTRENAMIENTO";
-        btn.style.background = "var(--accent)";
+        btn.style.background = "var(--text)";
+        btn.style.color = "var(--bg)";
       }
     }
 
+    // -------------------------------------------------------------
+    // RENDERIZADO Y EDICIÓN EN VIVO
+    // -------------------------------------------------------------
     function renderChecklist() {
       const container = document.getElementById('checklistContainer');
       container.innerHTML = '';
@@ -419,12 +399,15 @@
 
         const isBW = ex.isBodyweight;
         const isIso = ex.isIso;
-        const badge = isBW ? "BW" : (isIso ? "ISOMÉTRICO" : `${ex.weight}kg`);
+        const badge = isBW ? "BW" : (isIso ? "ISO" : `${ex.weight}kg`);
 
         container.innerHTML += `
           <div class="checklist-item" id="item_${idx}">
             <div class="checklist-header">
-              <div class="checklist-title" onclick="toggleBody(${idx})">${ex.name}</div>
+              <div class="checklist-title" onclick="toggleBody(${idx})">
+                <span style="color:var(--accent); font-size:10px; display:block;">${ex.group}</span>
+                ${ex.name}
+              </div>
               <div class="checklist-actions">
                 <button class="icon-btn" onclick="moveExercise(${idx}, -1)">▲</button>
                 <button class="icon-btn" onclick="moveExercise(${idx}, 1)">▼</button>
@@ -433,16 +416,16 @@
             </div>
             <div class="checklist-body" id="body_${idx}">
               <div class="tech-box">
-                <strong>Equipamiento:</strong> ${ex.equipment}<br>
-                <strong>Patrón:</strong> ${ex.pattern}<br>
-                <strong>Técnica:</strong> ${ex.guide}
+                <strong>Equip:</strong> ${ex.equipment}<br>
+                <strong>Técnica:</strong> ${ex.guide}<br>
+                <strong style="color:var(--accent);">Objetivo:</strong> ${ex.note || ''}
               </div>
 
-              ${ex.phase.includes("FUERZA") ? `
-                <button class="btn-sub" onclick="substituteExercise(${idx})">🔄 Sustituir por Máquina Ocupada (Mismo Patrón)</button>
+              ${ex.phase.includes("FUERZA") || ex.phase.includes("CORE") ? `
+                <button class="btn-sub" onclick="substituteExercise(${idx})">🔄 Máquina Ocupada (Sustituir)</button>
                 <div class="table-headers">
                   <div class="col-num">#</div>
-                  <div class="col-w">${isBW ? '+LASTRE' : 'PESO'}</div>
+                  <div class="col-w">${isBW ? '+LASTRE (KG)' : 'PESO (KG)'}</div>
                   <div class="col-r">${isIso ? 'SEG' : 'REPS'}</div>
                   <div class="col-rir">RIR</div>
                   <div class="col-action">OK</div>
@@ -452,15 +435,15 @@
                 <div style="font-size: 12px; margin-bottom: 8px;">Duración Objetivo: <strong>${ex.target}</strong></div>
               `}
 
-              <button class="btn-finish-ex" id="btnFinish_${idx}" onclick="completeExercise(${idx})">[✓] GUARDAR EJERCICIO</button>
+              <button class="btn-finish-ex" id="btnFinish_${idx}" onclick="completeExercise(${idx})">[✓] REGISTRAR EJERCICIO</button>
             </div>
           </div>
         `;
 
-        if (ex.phase.includes("FUERZA")) {
-          setTimeout(() => renderSets(idx), 30);
+        if (ex.phase.includes("FUERZA") || ex.phase.includes("CORE")) {
+          setTimeout(() => renderSets(idx), 20);
         } else {
-          setTimeout(() => { document.getElementById(`btnFinish_${idx}`).style.display = "block"; }, 30);
+          setTimeout(() => { document.getElementById(`btnFinish_${idx}`).style.display = "block"; }, 20);
         }
       });
       document.getElementById('routineCard').style.display = 'block';
@@ -485,22 +468,17 @@
 
     function substituteExercise(idx) {
       const current = state.currentRoutine[idx];
-      const alternatives = EXERCISE_CATALOG.filter(e => e.pattern === current.pattern && e.name !== current.name);
-      if (alternatives.length === 0) return alert("No hay otros ejercicios con el mismo vector biomecánico exacto.");
+      const alts = EXERCISE_CATALOG.filter(e => e.pattern === current.pattern && e.name !== current.name);
+      if (alts.length === 0) return alert("Sin alternativas del mismo patrón biomecánico exacto.");
 
-      let promptText = "Selecciona el número del sustituto:\n";
-      alternatives.forEach((alt, i) => { promptText += `${i + 1}. ${alt.name} (${alt.equipment})\n`; });
-      const choice = prompt(promptText);
+      let text = "Sustituto con el mismo Patrón Muscular:\n";
+      alts.forEach((a, i) => { text += `${i + 1}. ${a.name}\n`; });
+      const choice = prompt(text);
+      if (!choice) return;
+      
       const chosenIdx = parseInt(choice) - 1;
-
-      if (alternatives[chosenIdx]) {
-        state.currentRoutine[idx] = {
-          ...alternatives[chosenIdx],
-          phase: current.phase,
-          target: current.target,
-          weight: alternatives[chosenIdx].isBodyweight ? 0 : 20,
-          note: "Sustitución en vivo"
-        };
+      if (alts[chosenIdx]) {
+        state.currentRoutine[idx] = { ...alts[chosenIdx], phase: current.phase, target: current.target, weight: alts[chosenIdx].isBodyweight ? 0 : 20, note: "Sustitución aplicada" };
         renderChecklist();
       }
     }
@@ -537,8 +515,8 @@
         for (let i = 1; i < state.completedSets[idx].length; i++) {
           if (!state.completedSets[idx][i].locked) {
             state.completedSets[idx][i].weight = parseFloat(val) || 0;
-            const input = document.getElementById(`w_${idx}_${i}`);
-            if (input) input.value = val;
+            const el = document.getElementById(`w_${idx}_${i}`);
+            if (el) el.value = val;
           }
         }
       }
@@ -552,22 +530,17 @@
 
     function toggleSetLock(idx, sIdx) {
       if (!state.isSessionActive) return alert("Pulsa '▶️ INICIAR ENTRENAMIENTO' arriba primero.");
-      
       const s = state.completedSets[idx][sIdx];
       if (s.locked) {
         s.locked = false;
         renderSets(idx);
       } else {
-        const wVal = parseFloat(document.getElementById(`w_${idx}_${sIdx}`).value) || 0;
-        const rVal = parseInt(document.getElementById(`r_${idx}_${sIdx}`).value) || 0;
-        s.weight = wVal;
-        s.reps = rVal;
+        s.weight = parseFloat(document.getElementById(`w_${idx}_${sIdx}`).value) || 0;
+        s.reps = parseInt(document.getElementById(`r_${idx}_${sIdx}`).value) || 0;
         s.locked = true;
         renderSets(idx);
 
-        // Disparar descanso si no es la última serie bloqueada
-        const allLocked = state.completedSets[idx].every(item => item.locked);
-        if (!allLocked) {
+        if (!state.completedSets[idx].every(item => item.locked)) {
           startTimer(state.currentRoutine[idx].restSec || 90);
         }
       }
@@ -575,61 +548,69 @@
 
     function completeExercise(idx) {
       const ex = state.currentRoutine[idx];
-      const setsData = state.completedSets[idx].map((s, i) => ({
-        setNum: i + 1,
-        weight: s.weight,
-        reps: s.reps,
-        rir: s.rir
-      }));
+      const setsData = state.completedSets[idx] ? state.completedSets[idx].map((s, i) => ({ setNum: i + 1, weight: s.weight, reps: s.reps, rir: s.rir })) : [{setNum:1, weight:0, reps:1, rir:2}];
 
-      // Guardar de forma atómica en el historial local
       const todayStr = new Date().toISOString().split('T')[0];
       let todayLog = state.history.find(h => h.date === todayStr);
 
       if (!todayLog) {
-        todayLog = { date: todayStr, totalTonnage: 0, exercises: [] };
+        todayLog = { date: todayStr, totalTonnage: 0, totalSets: 0, exercises: [] };
         state.history.unshift(todayLog);
       }
 
-      // Reemplazar o insertar ejercicio
-      const existingExIdx = todayLog.exercises.findIndex(e => e.name === ex.name);
-      if (existingExIdx !== -1) {
-        todayLog.exercises[existingExIdx] = { name: ex.name, group: ex.group, sets: setsData };
-      } else {
-        todayLog.exercises.push({ name: ex.name, group: ex.group, sets: setsData });
-      }
+      const existingIdx = todayLog.exercises.findIndex(e => e.name === ex.name);
+      if (existingIdx !== -1) todayLog.exercises[existingIdx] = { name: ex.name, group: ex.group, sets: setsData };
+      else todayLog.exercises.push({ name: ex.name, group: ex.group, sets: setsData });
 
-      // Recalcular tonelaje
-      todayLog.totalTonnage = todayLog.exercises.reduce((acc, curr) => {
-        return acc + curr.sets.reduce((sAcc, s) => sAcc + (s.weight * s.reps), 0);
-      }, 0);
+      // Recalcular métricas del día
+      todayLog.totalTonnage = 0;
+      todayLog.totalSets = 0;
+      todayLog.exercises.forEach(e => {
+        e.sets.forEach(s => { todayLog.totalTonnage += (s.weight * s.reps); todayLog.totalSets++; });
+      });
 
       localStorage.setItem('gym_tracker_history', JSON.stringify(state.history));
-
       document.getElementById(`item_${idx}`).classList.add('completed');
       document.getElementById(`badge_${idx}`).innerText = "HECHO ✓";
       document.getElementById(`body_${idx}`).style.display = "none";
     }
 
-    function promptAddExtraExercise() {
-      const name = prompt("Nombre o búsqueda del ejercicio extra:");
-      if (!name) return;
-      const found = EXERCISE_CATALOG.find(e => e.name.toLowerCase().includes(name.toLowerCase())) || {
-        id: "EXTRA", name: name, group: "General", pattern: "Libre", equipment: "Mancuerna", restSec: 90, isBodyweight: false, isIso: false, guide: "Libre"
-      };
+    // -------------------------------------------------------------
+    // MODAL DE EJERCICIOS EXTRAS (ESTRUCTURADO)
+    // -------------------------------------------------------------
+    function openExtraExModal() {
+      const groups = [...new Set(EXERCISE_CATALOG.map(e => e.group))].sort();
+      const sel = document.getElementById('extraGroupSelect');
+      sel.innerHTML = '<option value="">Selecciona Grupo...</option>';
+      groups.forEach(g => sel.innerHTML += `<option value="${g}">${g}</option>`);
+      document.getElementById('extraExModal').classList.add('active');
+    }
 
+    function populateExtraExercises() {
+      const g = document.getElementById('extraGroupSelect').value;
+      const sel = document.getElementById('extraExSelect');
+      sel.innerHTML = '<option value="">Selecciona Ejercicio...</option>';
+      EXERCISE_CATALOG.filter(e => e.group === g).forEach(e => sel.innerHTML += `<option value="${e.name}">${e.name}</option>`);
+    }
+
+    function confirmExtraExercise() {
+      const name = document.getElementById('extraExSelect').value;
+      if (!name) return alert("Selecciona un ejercicio válido.");
+      const ex = EXERCISE_CATALOG.find(e => e.name === name);
+      
       state.currentRoutine.push({
-        ...found,
-        phase: "FASE 2: FUERZA E HIPERTROFIA",
-        target: "8-12",
-        weight: 20,
-        note: "Bloque Extra"
+        ...ex,
+        phase: "BLOQUE EXTRA AÑADIDO",
+        target: ex.isIso ? "45s" : "8-12 reps",
+        weight: ex.isBodyweight ? 0 : 20,
+        note: "Ejercicio fuera de planificación"
       });
+      document.getElementById('extraExModal').classList.remove('active');
       renderChecklist();
     }
 
     // -------------------------------------------------------------
-    // TEMPORIZADOR Y SEÑAL ACÚSTICA / HÁPTICA
+    // TEMPORIZADOR HÁPTICO
     // -------------------------------------------------------------
     function startTimer(sec) {
       clearInterval(state.activeTimer);
@@ -643,52 +624,110 @@
         if (state.timeLeft <= 0) {
           closeTimer();
           if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-          try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            osc.connect(ctx.destination);
-            osc.frequency.value = 880;
-            osc.start();
-            osc.stop(ctx.currentTime + 0.3);
-          } catch(e){}
         }
       }, 1000);
     }
-
     function updateTimerUI() {
       const m = Math.floor(state.timeLeft / 60).toString().padStart(2, '0');
       const s = (state.timeLeft % 60).toString().padStart(2, '0');
       document.getElementById('timerDisplay').innerText = `${m}:${s}`;
     }
-
     function addTimer(sec) { state.timeLeft += sec; updateTimerUI(); }
     function closeTimer() { clearInterval(state.activeTimer); document.getElementById('restModal').classList.remove('active'); }
 
     // -------------------------------------------------------------
-    // RENDERIZADO DEL HISTORIAL Y BACKUPS
+    // HISTORIAL Y EDICIÓN/BORRADO
     // -------------------------------------------------------------
     function renderHistoryView() {
       const container = document.getElementById('historyList');
       if (state.history.length === 0) {
-        container.innerHTML = '<div style="font-size:12px; color:var(--text-sec);">No hay sesiones registradas aún.</div>';
+        container.innerHTML = '<div style="font-size:12px; color:var(--text-sec);">Historial vacío.</div>';
         return;
       }
       container.innerHTML = '';
-      state.history.forEach(h => {
+      state.history.forEach((h, hIdx) => {
         let html = `
           <div class="hist-card">
             <div class="hist-header">
               <div class="hist-date">📅 ${h.date}</div>
-              <div class="hist-tonnage">Tonelaje: ${h.totalTonnage.toLocaleString()} kg</div>
+              <div class="hist-metrics">
+                <span style="color:var(--accent);">🏋️ ${h.totalTonnage.toLocaleString()} kg</span>
+                <span style="color:var(--text-sec);">📊 ${h.totalSets || 0} Series</span>
+              </div>
             </div>
         `;
         h.exercises.forEach(ex => {
-          const setsStr = ex.sets.map(s => `${s.weight}kg × ${s.reps} (R${s.rir})`).join(' | ');
-          html += `<div style="font-size:11px; margin-bottom:4px;"><strong>${ex.name}</strong>: ${setsStr}</div>`;
+          const setsStr = ex.sets.map(s => `${s.weight}kg × ${s.reps}`).join(' | ');
+          html += `
+            <div class="hist-ex-row">
+              <div class="hist-ex-title"><span>${ex.name}</span><span>${ex.group}</span></div>
+              <div class="hist-sets-detail">${setsStr}</div>
+            </div>
+          `;
         });
-        html += `</div>`;
+        html += `
+            <div class="hist-actions">
+              <button class="primary-btn" style="background:var(--card-sub); border:1px solid var(--border); color:var(--text); font-size:11px; padding:8px; margin:0;" onclick="editPastSession(${hIdx})">✏️ Reanudar / Editar Sesión</button>
+              <button class="primary-btn" style="background:var(--red); color:white; font-size:11px; padding:8px; margin:0;" onclick="deleteSession(${hIdx})">🗑️ Borrar</button>
+            </div>
+          </div>
+        `;
         container.innerHTML += html;
       });
+    }
+
+    function deleteSession(idx) {
+      if (confirm("¿Seguro que quieres borrar este día de entrenamiento por completo? Afectará a los cálculos de sobrecarga.")) {
+        state.history.splice(idx, 1);
+        localStorage.setItem('gym_tracker_history', JSON.stringify(state.history));
+        renderHistoryView();
+      }
+    }
+
+    // MAGIA: Cargar una sesión antigua de vuelta a la pantalla de entrenamiento para editarla en vivo
+    function editPastSession(idx) {
+      if (confirm("Se va a cargar esta sesión en la pestaña 'Entrenar' para que puedas modificar kilos y repeticiones. ¿Continuar?")) {
+        const past = state.history[idx];
+        state.history.splice(idx, 1); // Lo quitamos temporalmente, se guardará al confirmar series
+        localStorage.setItem('gym_tracker_history', JSON.stringify(state.history));
+        
+        state.currentRoutine = past.exercises.map(e => {
+          const exCat = EXERCISE_CATALOG.find(c => c.name === e.name) || { isBodyweight: false, isIso: false, equipment: "Var.", guide: "N/A", restSec: 90 };
+          return { ...exCat, name: e.name, group: e.group, phase: "MODO EDICIÓN (SESIÓN RECUPERADA)", target: "Libre", note: "Editando datos del pasado." };
+        });
+
+        state.completedSets = {};
+        past.exercises.forEach((e, i) => {
+          state.completedSets[i] = e.sets.map(s => ({ weight: s.weight, reps: s.reps, rir: s.rir, locked: true }));
+        });
+
+        document.getElementById('workoutFocus').innerText = `MODO EDICIÓN: ${past.date}`;
+        document.getElementById('sessionDate').value = past.date; // No tenemos input expuesto, pero simulamos que es hoy o forzamos en save
+        
+        switchTab('work');
+        document.getElementById('btnGen').style.display = 'none';
+        document.getElementById('btnSession').style.display = 'block';
+        toggleSession(); // Activa sesión
+        renderChecklist();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // IMPORTACIÓN Y BACKUPS
+    // -------------------------------------------------------------
+    function importFromText() {
+      const text = document.getElementById('importText').value;
+      if (!text) return;
+      try {
+        const data = JSON.parse(text);
+        if (Array.isArray(data)) {
+          state.history = data;
+          localStorage.setItem('gym_tracker_history', JSON.stringify(data));
+          alert("✅ Datos importados correctamente.");
+          document.getElementById('importText').value = '';
+          switchTab('hist');
+        }
+      } catch(e) { alert("❌ El formato no es válido. Pega el JSON exacto de Apps Script."); }
     }
 
     function exportDataBackup() {
@@ -700,22 +739,13 @@
       a.click();
     }
 
-    function importDataBackup(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const data = JSON.parse(event.target.result);
-          if (Array.isArray(data)) {
-            state.history = data;
-            localStorage.setItem('gym_tracker_history', JSON.stringify(data));
-            alert("Copia de seguridad restaurada correctamente.");
-            renderHistoryView();
-          }
-        } catch(err) { alert("Archivo JSON no válido."); }
-      };
-      reader.readAsText(file);
+    function clearAllData() {
+      if (confirm("⚠️ ADVERTENCIA: Se borrarán TODOS tus entrenamientos y perderás la progresión del algoritmo de forma irreversible. ¿Estás absolutamente seguro?")) {
+        state.history = [];
+        localStorage.removeItem('gym_tracker_history');
+        alert("Base de datos borrada.");
+        renderHistoryView();
+      }
     }
   </script>
 </body>
